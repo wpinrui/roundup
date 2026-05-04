@@ -80,3 +80,13 @@ e2e/            Playwright Electron smoke tests
 `src/main/db/schema.ts` is the single source of truth. Edit it, then run `npm run drizzle:generate` to produce a new SQL migration in `drizzle/`. Generated files are committed to git and bundled into the packaged app via `electron-builder.yml` `extraResources`. Migrations run automatically on app start.
 
 CHECK constraints (weight `1–10`, score `0–10`, suggestion rank `> 0`, mode in `('fix','stretch')`) are enforced at the database layer — the application does not re-validate.
+
+## Troubleshooting
+
+**`require('electron')` returns a path string instead of the API object, or `npm run e2e` fails with "Process failed to launch!" / `electron.app is undefined`.** Check whether `ELECTRON_RUN_AS_NODE=1` is set in your shell environment — that variable forces Electron to run as plain Node.js, so the built-in `electron` module isn't loaded and `require('electron')` resolves to the npm package's path string. Unset it (`unset ELECTRON_RUN_AS_NODE` on bash/zsh, `Remove-Item Env:ELECTRON_RUN_AS_NODE` on PowerShell) and retry.
+
+**better-sqlite3 ABI mismatch errors when running tests after dev/build, or vice versa.** The `pre*` scripts in `package.json` rebuild the native module against the right ABI for each command (Node ABI for Vitest, Electron ABI for dev/build/e2e). If you bypass them — for example by running `npx vitest` directly — you may end up with the wrong binary. Run the full `npm run test` / `npm run e2e` to let the rebuild scripts fix it.
+
+## Engine harness
+
+`scripts/engine-wizard.ts` is the wizard's CLI surface — it accepts a JSON spec on stdin, runs verify → save dimensions → generate rubrics through the same modules the UI calls, and prints the path to a temp `rubrics.md` on stdout. Run via `npm run engine:wizard < spec.json`.

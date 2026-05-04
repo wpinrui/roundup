@@ -1,7 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'path'
 import log from 'electron-log/main'
-import { initDb } from './db/client'
+import { initDb, type DrizzleClient } from './db/client'
 import { registerIpcHandlers } from './ipc/handlers'
 
 // @anthropic-ai/sdk is imported here in the main process only.
@@ -48,13 +48,14 @@ app.whenReady().then(() => {
 
   log.info(`Roundup starting — version ${app.getVersion()}`)
 
+  let db: DrizzleClient | null = null
   try {
-    initDb()
+    db = initDb()
   } catch (err) {
     log.error('Failed to initialise database', err)
   }
 
-  registerIpcHandlers()
+  registerIpcHandlers(db)
 
   createWindow()
 
