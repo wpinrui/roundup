@@ -3,8 +3,8 @@
  *
  * Viz toggles live in the `app_settings` key/value table; values are
  * JSON-serialised text. Defaults: every toggle on (per the brief). The set of
- * keys (`VIZ_TOGGLE_KEYS`) is exhaustive — adding a viz means extending the
- * union in `@shared/ipc` and this list together.
+ * keys is the `VIZ_TOGGLE_KEYS` array in `@shared/ipc.ts`; the `VizToggleKey`
+ * union derives from it, so adding a viz is a one-place edit there.
  */
 
 import type {
