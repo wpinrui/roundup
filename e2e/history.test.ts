@@ -124,9 +124,13 @@ test('History — clicking a heatmap cell opens the past-day modal; Go to day na
   // Modal opens with the graded body.
   await expect(window.locator('[data-testid="modal-graded"]')).toBeVisible({ timeout: 5_000 })
 
-  // Go to day → /day/<targetDate>
+  // Go to day → /day/<targetDate>. The day was graded, so TodayPane lands in
+  // readout mode (no textarea); we assert the readout body is visible and that
+  // clicking Edit reveals the original text in the textarea.
   await window.locator('[data-testid="modal-go-to-day"]').click()
   await expect(window.locator('[data-testid="day-label"]')).toBeVisible({ timeout: 5_000 })
+  await expect(window.locator('[data-testid="day-readout"]')).toBeVisible({ timeout: 5_000 })
+  await window.locator('[data-testid="day-edit"]').click()
   await expect(window.locator('[data-testid="day-textarea"]')).toHaveValue('a graded day')
 })
 
