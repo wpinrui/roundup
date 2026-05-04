@@ -1,33 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { NavRail } from '@renderer/components/NavRail'
-import { Button } from '@renderer/components/ui/button'
 import { Wizard } from '@renderer/wizard/Wizard'
+import { TodayPane } from '@renderer/today/TodayPane'
+import { SettingsPane } from '@renderer/settings/SettingsPane'
+import { todayLocalDate } from '@renderer/today/dateUtils'
 import type { AppInfo } from '@shared/ipc'
-
-function TodayPane() {
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 text-muted-foreground">
-      <span>Today — coming soon</span>
-      <Button variant="outline" disabled>
-        New entry
-      </Button>
-    </div>
-  )
-}
 
 function HistoryPane() {
   return (
     <div className="flex h-full items-center justify-center text-muted-foreground">
       History — coming soon
-    </div>
-  )
-}
-
-function SettingsPane() {
-  return (
-    <div className="flex h-full items-center justify-center text-muted-foreground">
-      Settings — coming soon
     </div>
   )
 }
@@ -73,7 +56,8 @@ export function App() {
         <NavRail />
         <main className="flex-1 overflow-auto">
           <Routes>
-            <Route path="/" element={<TodayPane />} />
+            <Route path="/" element={<Navigate to={`/day/${todayLocalDate()}`} replace />} />
+            <Route path="/day/:date" element={<TodayPane />} />
             <Route path="/history" element={<HistoryPane />} />
             <Route path="/settings" element={<SettingsPane />} />
           </Routes>

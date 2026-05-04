@@ -9,14 +9,20 @@ import { registerIpcHandlers } from './ipc/handlers'
 
 log.initialize()
 
-// Belt-and-suspenders for the ROUNDUP_E2E_MOCK_ANTHROPIC test hook in
-// src/main/ai/{verify,rubrics}.ts: in a packaged build, scrub the env var
-// before anything else imports it, so the AI mock cannot be enabled in
-// production even if the variable is somehow set in the user's environment.
-// The AI module is deliberately electron-free (the CLI engine harness imports
-// it from plain Node), so the guard belongs here, not in the AI module.
+// Belt-and-suspenders env scrub for the E2E test hooks. In a packaged build,
+// strip these vars before anything else imports them so the mocks cannot be
+// enabled in production even if a user somehow sets them. Centralised here
+// (rather than in each consumer) because the modules that read these vars are
+// deliberately electron-free — the CLI engine harness imports them from plain
+// Node, so the guard belongs at the Electron entry point.
+//
+// - ROUNDUP_E2E_MOCK_ANTHROPIC: short-circuits Anthropic calls in
+//   src/main/ai/{verify,rubrics,grade}.ts to return deterministic stubs.
+// - ROUNDUP_E2E_NOOP_SHELL: makes the open-rubrics-* IPC handlers no-op so
+//   E2E tests don't actually launch the OS file browser.
 if (app.isPackaged) {
   delete process.env['ROUNDUP_E2E_MOCK_ANTHROPIC']
+  delete process.env['ROUNDUP_E2E_NOOP_SHELL']
 }
 
 function createWindow(): BrowserWindow {

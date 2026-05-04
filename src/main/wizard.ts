@@ -8,6 +8,7 @@
 
 import { writeFileSync } from 'fs'
 import type { DimensionInput } from '@shared/ipc'
+import { DIMENSION_COUNT_MIN, DIMENSION_COUNT_MAX } from '@shared/ipc'
 import type { DrizzleClient } from './db/client'
 import { dimensions } from './db/schema'
 import { generateRubrics as callSonnet } from './ai/rubrics'
@@ -17,11 +18,11 @@ export async function saveDimensions(
   db: DrizzleClient,
   inputs: DimensionInput[]
 ): Promise<void> {
-  if (inputs.length === 0) {
+  if (inputs.length < DIMENSION_COUNT_MIN) {
     throw new Error('Cannot save: no dimensions provided.')
   }
-  if (inputs.length > 8) {
-    throw new Error('Cannot save: maximum 8 dimensions.')
+  if (inputs.length > DIMENSION_COUNT_MAX) {
+    throw new Error(`Cannot save: maximum ${DIMENSION_COUNT_MAX} dimensions.`)
   }
   const now = new Date().toISOString()
   const rows = inputs.map((d) => ({

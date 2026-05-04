@@ -32,10 +32,11 @@ On submit, Sonnet generates a rubric per dimension based on inputs. Rubrics stor
 - Sonnet generation prompt instructs descriptors at each level in user's terms
 
 ## Main Loop — Daily Input
-- Single end-of-day text dump field
+- Single text dump field per day
 - Free-form: what was done, when, for how long
 - Optional self-assessment / context in the same field (treated as circumstance for grading)
 - No AI follow-up questions
+- **Save and Grade are separate actions.** The user can save a day's text at any time without grading immediately. Grading is a deliberate, deferrable action — there is no hard cutoff. Past days can be graded retrospectively, days or weeks later, including past midnight.
 - If parsing is wrong: edit original text, regenerate
 
 ## Main Loop — AI Output (per day)
@@ -58,8 +59,16 @@ On submit, Sonnet generates a rubric per dimension based on inputs. Rubrics stor
 - Mode flip: when weighted 7-day average > threshold (e.g. 7), surface stretch suggestions instead of fix suggestions
 - Tone: suggestive, not prescriptive ("consider…" not "you should…")
 
+## Day Navigation
+- The day-view shows whichever day is currently in focus (default landing: today's calendar date).
+- A prev / next day toggle moves the view between days.
+- An ungraded day shows the input field; a graded day shows the readout. Either can be edited or graded/re-graded at any time.
+- The History views (§ Views) remain the analytical/summarised perspective; day-by-day stepping lives on the day-view itself.
+
 ## Editing & History
-Past days editable; re-trigger grading after edit.
+- Past days are editable at any time.
+- Saved-but-ungraded days can be graded later (no cutoff).
+- Editing a graded day's text does not automatically re-grade it; the user triggers re-grade explicitly.
 
 ## Dimension / Rubric Changes
 - Rubrics editable any time
@@ -89,6 +98,7 @@ Past days editable; re-trigger grading after edit.
 ## Settings
 - Edit dimensions (goals, constraints, anti-goals, weight)
 - Edit rubrics (manual `rubrics.md` editing)
+- **Open rubrics folder** — opens the OS folder containing `rubrics.md` (Electron `shell.openPath` / `shell.showItemInFolder`)
 - API key
 - Model selection (default Haiku for grading)
 - Toggle viz components on/off

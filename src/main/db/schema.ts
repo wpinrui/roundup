@@ -45,10 +45,12 @@ export const dimensions = sqliteTable(
  * Composite primary key (day_date, dimension_id).
  * hours_estimated comes from the AI grading output (decision M).
  *
- * Immutability note: once written, scores are never updated — the application
- * layer enforces this (no UPDATE path after graded_at is set on the parent day).
- * Re-grading creates a new row; a future migration could add a `superseded_at`
- * column if audit trail becomes required.
+ * Re-grade semantics (decision B1): re-grading replaces the day's score rows
+ * in place via delete-then-insert inside a transaction (see `day.ts` →
+ * `gradeDay`). Prior scores are not preserved. The composite PK on
+ * (day_date, dimension_id) means there is one row per dim per day at any time.
+ * Versioning via a `superseded_at` column is a tracked carry-forward; not yet
+ * implemented and not in scope for this PR.
  */
 export const scores = sqliteTable(
   'scores',
@@ -91,3 +93,13 @@ export const suggestions = sqliteTable(
     modeEnum: check('suggestions_mode_enum', sql`${table.mode} IN ('fix', 'stretch')`),
   })
 )
+
+/**
+ * Key/value bag for app-wide preferences (viz toggles today, room for more
+ * later). Values are JSON-serialised text so any small primitive or shape
+ * fits without further migrations.
+ */
+export const appSettings = sqliteTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+})
