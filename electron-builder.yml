@@ -1,5 +1,6 @@
 appId: com.roundup.app
 productName: Roundup
+icon: build/icon.png
 directories:
   output: out
 
