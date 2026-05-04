@@ -1,0 +1,37 @@
+appId: com.roundup.app
+productName: Roundup
+directories:
+  output: out
+
+files:
+  - 'out/**/*'
+  - '!**/.eslintrc.cjs'
+  - '!**/.prettierrc'
+  - '!**/tsconfig*.json'
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  category: Utility
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+
+npmRebuild: true
