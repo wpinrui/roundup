@@ -17,6 +17,7 @@ log.initialize()
 // it from plain Node), so the guard belongs here, not in the AI module.
 if (app.isPackaged) {
   delete process.env['ROUNDUP_E2E_MOCK_ANTHROPIC']
+  delete process.env['ROUNDUP_E2E_NOOP_SHELL']
 }
 
 function createWindow(): BrowserWindow {

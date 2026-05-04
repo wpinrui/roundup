@@ -127,10 +127,13 @@ export function registerIpcHandlers(db: DrizzleClient | null): void {
   )
 
   ipcMain.handle('open-rubrics-folder', async (): Promise<void> => {
+    // E2E hook — same scrub-in-production pattern as ROUNDUP_E2E_MOCK_ANTHROPIC.
+    if (process.env['ROUNDUP_E2E_NOOP_SHELL'] === '1') return
     await shell.openPath(app.getPath('userData'))
   })
 
   ipcMain.handle('open-rubrics-file', async (): Promise<void> => {
+    if (process.env['ROUNDUP_E2E_NOOP_SHELL'] === '1') return
     await shell.openPath(rubricsPath(app.getPath('userData')))
   })
 
