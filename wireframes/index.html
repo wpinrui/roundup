@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roundup — Wireframe</title>
+<style>
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; font-size: 14px; color: #111; background: #fff; }
+
+/* ── Wireframe demo toolbar ─────────────────────────────── */
+.wf-toolbar {
+  background: #222; color: #eee; padding: 8px 16px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  font-size: 12px;
+}
+.wf-toolbar strong { margin-right: 6px; color: #aaa; }
+.wf-toolbar button {
+  border: 1px solid #555; background: #333; color: #ddd;
+  padding: 3px 10px; font-size: 11px; cursor: pointer;
+}
+.wf-toolbar button:hover { background: #555; }
+.wf-toolbar button.active { background: #666; color: #fff; border-color: #999; }
+
+/* ── App shell ──────────────────────────────────────────── */
+.app { display: flex; height: calc(100vh - 37px); overflow: hidden; }
+
+/* ── Nav rail ───────────────────────────────────────────── */
+.nav-rail { width: 160px; border-right: 2px solid #ccc; flex-shrink: 0; overflow-y: auto; }
+.nav-rail-title { padding: 14px 20px 12px; font-weight: bold; font-size: 16px; border-bottom: 1px solid #eee; }
+.nav-item {
+  display: block; padding: 11px 20px; cursor: pointer;
+  border: none; background: none; width: 100%; text-align: left; font-size: 14px;
+}
+.nav-item:hover { background: #f5f5f5; }
+.nav-item.active { background: #e8e8e8; font-weight: bold; }
+
+/* ── Content area ───────────────────────────────────────── */
+.content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+/* ── Screen visibility ──────────────────────────────────── */
+.screen { display: none; }
+.screen.visible { display: block; }
+
+/* ── Typography ─────────────────────────────────────────── */
+.screen-title { font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+.screen-date  { font-size: 13px; color: #666; margin-bottom: 16px; }
+h3 { font-size: 15px; font-weight: bold; margin-bottom: 8px; }
+.label { font-size: 12px; color: #555; margin-bottom: 4px; }
+
+/* ── Spacing utilities ──────────────────────────────────── */
+.mb-4  { margin-bottom:  4px; }
+.mb-8  { margin-bottom:  8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-8  { margin-top:  8px; }
+.mt-16 { margin-top: 16px; }
+
+/* ── Layout ─────────────────────────────────────────────── */
+.row  { display: flex; gap: 12px; align-items: flex-start; }
+.col  { flex: 1; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+/* ── Form elements ──────────────────────────────────────── */
+.wf-input {
+  border: 1px solid #aaa; width: 100%; padding: 7px 10px;
+  font-size: 14px; font-family: inherit; background: #fff;
+}
+.wf-textarea {
+  border: 1px solid #aaa; width: 100%; padding: 7px 10px;
+  font-size: 14px; font-family: inherit; resize: vertical; background: #fff;
+}
+.wf-select {
+  border: 1px solid #aaa; padding: 6px 10px;
+  font-size: 14px; font-family: inherit; background: #fff;
+}
+.wf-slider { width: 100%; accent-color: #333; }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn {
+  border: 1px solid #aaa; padding: 7px 16px; cursor: pointer;
+  background: #fff; font-size: 13px; font-family: inherit;
+}
+.btn:hover { background: #f0f0f0; }
+.btn.primary { background: #333; color: #fff; border-color: #333; }
+.btn.primary:hover { background: #111; }
+.btn.primary[disabled], .btn[disabled] {
+  background: #ccc; border-color: #ccc; color: #fff; cursor: not-allowed;
+}
+.btn.small  { padding: 4px 10px; font-size: 12px; }
+.btn.ghost  {
+  border-color: transparent; background: none; padding: 0;
+  text-decoration: underline; color: #444; font-size: 13px; cursor: pointer;
+}
+
+/* ── Section boxes ──────────────────────────────────────── */
+.wf-section { border: 1px solid #ccc; padding: 14px; margin-bottom: 16px; }
+.wf-section-header {
+  font-size: 13px; font-weight: bold; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 1px solid #eee;
+}
+
+/* ── Score elements ─────────────────────────────────────── */
+.headline-score {
+  font-size: 48px; font-weight: bold; line-height: 1;
+  border: 2px solid #333; display: inline-block; padding: 8px 20px; margin-bottom: 6px;
+}
+.score-label { font-size: 11px; color: #666; }
+
+/* ── Dimension cards ─────────────────────────────────────── */
+.dim-card { border: 1px solid #ccc; padding: 10px 12px; background: #fafafa; }
+.dim-card.high-weight { border-width: 2px; border-color: #555; }
+.dim-card-name  { font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+.dim-card-score { font-size: 22px; font-weight: bold; }
+.dim-card-score.empty { color: #ccc; }
+.dim-tag {
+  border: 1px solid #aaa; padding: 1px 6px;
+  font-size: 10px; text-transform: uppercase; margin-right: 4px;
+}
+
+/* ── Chart placeholder ───────────────────────────────────── */
+.chart-placeholder {
+  border: 1px dashed #bbb; background: #f8f8f8;
+  display: flex; align-items: center; justify-content: center;
+  color: #aaa; font-size: 12px; font-style: italic;
+}
+
+/* ── Narrative / collapsed input ─────────────────────────── */
+.narrative-block {
+  border: 1px solid #ccc; padding: 10px 12px; background: #fafafa;
+  font-size: 13px; line-height: 1.6; margin-bottom: 12px;
+}
+.input-collapsed {
+  border: 1px solid #ccc; padding: 8px 12px; background: #fafafa;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.input-collapsed-text { font-size: 12px; color: #666; font-style: italic; }
+
+/* ── Tomorrow suggestions ────────────────────────────────── */
+.suggestion-item { border: 1px solid #ccc; padding: 8px 10px; margin-bottom: 6px; }
+.suggestion-rank { font-size: 11px; color: #888; margin-bottom: 2px; }
+.suggestion-text { font-size: 13px; }
+
+/* ── History tabs ────────────────────────────────────────── */
+.history-tabs { display: flex; margin-bottom: 16px; }
+.history-tab {
+  border: 1px solid #aaa; padding: 6px 16px; cursor: pointer;
+  background: #fff; font-size: 13px; margin-right: -1px;
+}
+.history-tab.active { background: #e8e8e8; font-weight: bold; }
+.history-sub { display: none; }
+.history-sub.visible { display: block; }
+
+/* ── Date range picker ───────────────────────────────────── */
+.date-picker-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  padding: 10px; border: 1px solid #ccc; background: #fafafa;
+}
+
+/* ── Streak counters ─────────────────────────────────────── */
+.streak-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.streak-item  { border: 1px solid #ccc; padding: 8px 14px; text-align: center; }
+.streak-item.high-weight { border-width: 2px; border-color: #555; }
+.streak-count { font-size: 20px; font-weight: bold; }
+.streak-label { font-size: 11px; color: #666; }
+
+/* ── Heatmap ─────────────────────────────────────────────── */
+.heatmap-container { overflow-x: auto; margin-bottom: 16px; }
+.heatmap-month-labels {
+  display: flex; gap: 2px; margin-left: 82px; margin-bottom: 3px;
+}
+.heatmap-row { display: flex; align-items: center; gap: 2px; margin-bottom: 3px; }
+.heatmap-dim-label {
+  width: 80px; font-size: 11px; flex-shrink: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.heatmap-cell { width: 14px; height: 14px; border: 1px solid #e0e0e0; flex-shrink: 0; }
+.hm-0 { background: #f5f5f5; }
+.hm-3 { background: #ddd; }
+.hm-5 { background: #bbb; }
+.hm-7 { background: #888; }
+.hm-9 { background: #444; }
+
+/* ── Activity ribbon ─────────────────────────────────────── */
+.ribbon-header-row { display: flex; align-items: flex-end; gap: 4px; margin-bottom: 2px; }
+.ribbon-spacer     { width: 80px; flex-shrink: 0; }
+.ribbon-day-ticks  { display: flex; gap: 4px; }
+.ribbon-tick { width: 30px; font-size: 10px; text-align: center; color: #888; }
+.ribbon-row  { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+.ribbon-label { width: 80px; font-size: 11px; flex-shrink: 0; }
+.ribbon-bars  { display: flex; gap: 4px; }
+.ribbon-bar   { height: 18px; background: #bbb; border: 1px solid #999; }
+
+/* ── Gap-from-goal bar chart ─────────────────────────────── */
+.bar-legend  { display: flex; gap: 12px; font-size: 11px; color: #666; margin-bottom: 8px; }
+.bar-legend-item { display: flex; align-items: center; gap: 4px; }
+.bar-legend-swatch { width: 12px; height: 12px; border: 1px solid #aaa; }
+.bar-chart-row   { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.bar-chart-label { width: 80px; font-size: 11px; flex-shrink: 0; }
+.bar-chart-track {
+  flex: 1; height: 20px; background: #f0f0f0;
+  border: 1px solid #ccc; position: relative;
+}
+.bar-chart-fill { height: 100%; background: #aaa; position: absolute; left: 0; top: 0; }
+.bar-chart-goal {
+  position: absolute; width: 2px; background: #333; height: 100%; top: 0;
+}
+.bar-chart-value { width: 32px; font-size: 11px; text-align: right; flex-shrink: 0; }
+
+/* ── Stacked area legend ─────────────────────────────────── */
+.area-legend { display: flex; gap: 12px; font-size: 11px; margin-bottom: 4px; }
+
+/* ── Anomaly callouts ────────────────────────────────────── */
+.anomaly-card { border: 1px solid #ccc; padding: 8px 10px; margin-bottom: 8px; }
+.anomaly-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.anomaly-tag {
+  border: 1px solid #999; padding: 1px 6px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+
+/* ── Settings ────────────────────────────────────────────── */
+.settings-section { border: 1px solid #ccc; padding: 14px; margin-bottom: 12px; }
+.settings-section-title {
+  font-size: 15px; font-weight: bold; margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 1px solid #eee;
+}
+.dim-edit-row { border: 1px solid #ddd; padding: 8px 10px; margin-bottom: 6px; }
+.dim-edit-header { display: flex; justify-content: space-between; align-items: center; }
+.toggle-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; border-bottom: 1px solid #f0f0f0;
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-stub {
+  width: 36px; height: 18px; border: 1px solid #aaa;
+  border-radius: 9px; display: inline-block; position: relative; flex-shrink: 0;
+}
+.toggle-stub.on::after {
+  content: ''; position: absolute; right: 2px; top: 2px;
+  width: 13px; height: 13px; background: #333; border-radius: 50%;
+}
+.toggle-stub.off::after {
+  content: ''; position: absolute; left: 2px; top: 2px;
+  width: 13px; height: 13px; background: #ccc; border-radius: 50%;
+}
+
+/* ── Wizard overlay ──────────────────────────────────────── */
+.wizard-overlay {
+  display: none; position: fixed; inset: 0; background: #fff; z-index: 20;
+  overflow-y: auto;
+}
+.wizard-overlay.visible {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start; padding: 40px 20px;
+}
+.wizard-inner { width: 100%; max-width: 640px; }
+.step-indicator { display: flex; align-items: flex-start; gap: 0; margin-bottom: 28px; }
+.step-wrapper   { display: flex; flex-direction: column; align-items: center; }
+.step-dot {
+  width: 28px; height: 28px; border: 2px solid #ccc; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: bold; background: #fff;
+}
+.step-dot.done    { background: #333; color: #fff; border-color: #333; }
+.step-dot.current { border-color: #333; }
+.step-label { font-size: 10px; color: #777; margin-top: 4px; text-align: center; width: 60px; }
+.step-connector { width: 48px; height: 2px; background: #ccc; margin-top: 13px; }
+.step-connector.done { background: #333; }
+.loading-box {
+  border: 1px dashed #ccc; padding: 24px;
+  background: #fafafa; text-align: center; color: #999; font-style: italic;
+}
+
+/* ── Past-day detail modal ───────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(160,160,160,0.65); z-index: 10;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.visible { display: flex; }
+.modal-box {
+  background: #fff; border: 2px solid #333; padding: 24px;
+  width: 600px; max-height: 84vh; overflow-y: auto;
+}
+.modal-header {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 16px;
+}
+.modal-title { font-size: 16px; font-weight: bold; }
+
+/* ── Radar SVG ───────────────────────────────────────────── */
+.radar-wrap { display: flex; justify-content: center; align-items: center; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DEMO TOOLBAR
+═══════════════════════════════════════════════════════════════ -->
+<div class="wf-toolbar">
+  <strong>Screens:</strong>
+  <button onclick="demo('wizard-setup')">① Wizard: Setup</button>
+  <button onclick="demo('wizard-loading')">② Wizard: Loading</button>
+  <button onclick="demo('today-empty')">③ Today (empty)</button>
+  <button onclick="demo('today-graded')">④ Today (graded)</button>
+  <button onclick="demo('history-7day')">⑤ History — 7 days</button>
+  <button onclick="demo('history-30day')">⑥ History — 30 days</button>
+  <button onclick="demo('history-custom')">⑦ History — Custom</button>
+  <button onclick="demo('past-day-modal')">⑧ Past-day detail</button>
+  <button onclick="demo('settings')">⑨ Settings</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     WIZARD — DIMENSION SETUP (full-screen)
+═══════════════════════════════════════════════════════════════ -->
+<div class="wizard-overlay visible" id="wizard-setup">
+  <div class="wizard-inner">
+    <div class="screen-title mb-4" style="font-size:22px;">Welcome to Roundup</div>
+    <p style="font-size:13px;color:#555;margin-bottom:24px;">Let's set up the dimensions you want to track each day. You can change these later in Settings.</p>
+
+    <!-- Step indicator -->
+    <div class="step-indicator">
+      <div class="step-wrapper">
+        <div class="step-dot done">✓</div>
+        <div class="step-label">API Key</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-wrapper">
+        <div class="step-dot current">2</div>
+        <div class="step-label">Dimensions</div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-wrapper">
+        <div class="step-dot">3</div>
+        <div class="step-label">Generate Rubrics</div>
+      </div>
+    </div>
+
+    <h3 class="mb-4">Your dimensions
+      <span style="font-size:11px;font-weight:normal;color:#777;">(1 of max 8 added)</span>
+    </h3>
+
+    <!-- Preset quick-add -->
+    <div class="mb-16">
+      <div class="label">Quick-add preset:</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn small">+ Work</button>
+        <button class="btn small">+ Health</button>
+        <button class="btn small">+ Fitness</button>
+        <button class="btn small">+ Sleep</button>
+        <button class="btn small">+ Social</button>
+        <button class="btn small">+ Learning</button>
+      </div>
+    </div>
+
+    <!-- Dimension 1 — expanded -->
+    <div class="wf-section mb-8" style="border-color:#555;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <div class="label">Dimension name</div>
+          <input class="wf-input" style="width:200px;" value="Work" />
+        </div>
+        <div style="text-align:right;">
+          <div class="label">Weight (1–10)</div>
+          <input type="range" class="wf-slider" style="width:130px;" min="1" max="10" value="8" />
+          <div style="font-size:11px;color:#555;text-align:right;">8 / 10</div>
+        </div>
+      </div>
+      <div class="mb-8">
+        <div class="label">What does success look like?</div>
+        <textarea class="wf-textarea" rows="2" placeholder="e.g. Deep work sessions completed, meaningful progress on projects…"></textarea>
+      </div>
+      <div class="mb-8">
+        <div class="label">Constraints</div>
+        <textarea class="wf-textarea" rows="2" placeholder="e.g. Limited to 8 hours/day. Family evenings are off-limits."></textarea>
+      </div>
+      <div class="mb-8">
+        <div class="label">Anti-goals</div>
+        <textarea class="wf-textarea" rows="2" placeholder="e.g. Busywork, reactive email all day, meetings that could be async…"></textarea>
+      </div>
+      <div>
+        <div class="label">Additional info (optional)</div>
+        <textarea class="wf-textarea" rows="2" placeholder="Anything else the grader should know…"></textarea>
+      </div>
+    </div>
+
+    <!-- Add another slot -->
+    <div style="border:1px dashed #ccc;padding:10px;color:#aaa;font-size:13px;font-style:italic;cursor:pointer;margin-bottom:16px;">
+      + Add another dimension
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <button class="btn">← Back</button>
+      <button class="btn primary" onclick="showWizard('loading')">Continue →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     WIZARD — GENERATING RUBRICS (loading state)
+═══════════════════════════════════════════════════════════════ -->
+<div class="wizard-overlay" id="wizard-loading">
+  <div class="wizard-inner" style="text-align:center;padding-top:60px;">
+
+    <div class="step-indicator" style="justify-content:center;">
+      <div class="step-wrapper">
+        <div class="step-dot done">✓</div>
+        <div class="step-label">API Key</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-wrapper">
+        <div class="step-dot done">✓</div>
+        <div class="step-label">Dimensions</div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-wrapper">
+        <div class="step-dot current">3</div>
+        <div class="step-label">Generate Rubrics</div>
+      </div>
+    </div>
+
+    <div class="screen-title mb-8" style="font-size:22px;">Generating your rubrics…</div>
+    <p style="font-size:13px;color:#555;max-width:420px;margin:0 auto 20px;">Sonnet is reading your goals and building personalised scoring rubrics. This usually takes 30–60 seconds.</p>
+
+    <div class="loading-box" style="max-width:320px;margin:0 auto 20px;min-height:60px;">
+      <div style="font-size:24px;margin-bottom:6px;">◌</div>
+      <div style="font-size:12px;">[ spinner animation ]</div>
+    </div>
+
+    <div class="wf-section" style="text-align:left;max-width:320px;margin:0 auto 16px;">
+      <div class="wf-section-header">Progress</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:14px;height:14px;background:#333;border:1px solid #333;flex-shrink:0;"></div>
+        <span style="font-size:13px;">Work ✓</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:14px;height:14px;background:#fff;border:1px dashed #bbb;flex-shrink:0;"></div>
+        <span style="font-size:13px;color:#aaa;">Health — processing…</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:14px;height:14px;background:#fff;border:1px dashed #bbb;flex-shrink:0;"></div>
+        <span style="font-size:13px;color:#ccc;">Fitness</span>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;">
+      <button class="btn small" onclick="dismissWizard()">→ Skip to app (demo only)</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAST-DAY DETAIL MODAL
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-past-day">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Wednesday, Apr 30</div>
+      <button class="btn small" onclick="closeModal()">✕ Close</button>
+    </div>
+
+    <div class="label mb-4">Entry text (editable)</div>
+    <textarea class="wf-textarea mb-16" rows="6">Worked on the Roundup prototype for 3 hours in the morning — good deep work block. 30-min run at lunch. Had a productive afternoon but the last hour got swallowed by reactive email. Slept around midnight.</textarea>
+
+    <div class="label mb-8">Per-dimension scores</div>
+    <div class="grid-4 mb-16">
+      <div class="dim-card high-weight">
+        <div class="dim-card-name">Work</div>
+        <div class="dim-card-score">7.5</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-card-name">Health</div>
+        <div class="dim-card-score">6.0</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-card-name">Fitness</div>
+        <div class="dim-card-score">5.0</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-card-name">Sleep</div>
+        <div class="dim-card-score">4.0</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary">Regrade</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN APP SHELL
+═══════════════════════════════════════════════════════════════ -->
+<div class="app">
+
+  <!-- Nav rail -->
+  <nav class="nav-rail">
+    <div class="nav-rail-title">Roundup</div>
+    <button class="nav-item active" id="nav-today"    onclick="goScreen('today-empty')">Today</button>
+    <button class="nav-item"        id="nav-history"  onclick="goScreen('history-7day')">History</button>
+    <button class="nav-item"        id="nav-settings" onclick="goScreen('settings')">Settings</button>
+  </nav>
+
+  <main class="content">
+
+    <!-- ══════════════════════════════════════════════════════
+         SCREEN 1 — TODAY: EMPTY STATE
+    ══════════════════════════════════════════════════════════ -->
+    <div class="screen visible" id="screen-today-empty">
+      <div class="screen-title">Monday, May 4</div>
+      <div class="screen-date">No entry yet today</div>
+
+      <div class="label mb-4">How did your day go?</div>
+      <textarea class="wf-textarea mb-4" id="entry-textarea" rows="7"
+        placeholder="Write about your day — what you did, when, for how long. Include anything relevant to your goals."
+        oninput="document.getElementById('grade-btn').disabled = this.value.trim().length === 0;"></textarea>
+
+      <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
+        <button class="btn primary" id="grade-btn" disabled onclick="goScreen('today-graded')">Grade my day</button>
+      </div>
+
+      <h3 class="mb-8">Dimensions</h3>
+      <div class="grid-4">
+        <div class="dim-card high-weight">
+          <div class="dim-card-name">Work <span style="font-size:10px;color:#888;">wt 8</span></div>
+          <div class="dim-card-score empty">—</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-card-name">Health <span style="font-size:10px;color:#888;">wt 6</span></div>
+          <div class="dim-card-score empty">—</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-card-name">Fitness <span style="font-size:10px;color:#888;">wt 5</span></div>
+          <div class="dim-card-score empty">—</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-card-name">Sleep <span style="font-size:10px;color:#888;">wt 4</span></div>
+          <div class="dim-card-score empty">—</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         SCREEN 2 — TODAY: GRADED STATE
+    ══════════════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-today-graded">
+      <div class="screen-title">Monday, May 4</div>
+      <div class="screen-date">Graded today at 10:43 PM</div>
+
+      <div class="row mb-16">
+        <div style="flex-shrink:0;">
+          <div class="label mb-4">Overall score</div>
+          <div class="headline-score">7.4</div>
+          <div class="score-label">Weighted across 4 dimensions</div>
+        </div>
+        <div class="col">
+          <div class="label mb-4">Today's summary</div>
+          <div class="narrative-block">
+            A productive morning anchored by focused deep work, though the afternoon lost momentum to reactive email. The fitness session was brief but consistent. Sleep debt is accumulating — tonight's early finish is a positive sign worth building on.
+          </div>
+        </div>
+      </div>
+
+      <div class="input-collapsed mb-16">
+        <div class="input-collapsed-text">"Worked on the Roundup prototype for 3 hours in the morning… [entry text]"</div>
+        <button class="btn small ghost" onclick="goScreen('today-empty')">Edit entry</button>
+      </div>
+
+      <h3 class="mb-8">Dimension scores</h3>
+      <div class="grid-4 mb-16">
+        <div class="dim-card high-weight">
+          <div class="dim-card-name">Work <span style="font-size:10px;color:#888;">wt 8</span></div>
+          <div class="dim-card-score">8.0</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-card-name">Health <span style="font-size:10px;color:#888;">wt 6</span></div>
+          <div class="dim-card-score">7.0</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-card-name">Fitness <span style="font-size:10px;color:#888;">wt 5</span></div>
+          <div class="dim-card-score">6.0</div>
+        </div>
+        <div class="dim-card">
+          <div class="dim-card-name">Sleep <span style="font-size:10px;color:#888;">wt 4</span></div>
+          <div class="dim-card-score">5.0</div>
+        </div>
+      </div>
+
+      <h3 class="mb-8">Tomorrow — top suggestions</h3>
+      <div class="suggestion-item">
+        <div class="suggestion-rank">#1 priority</div>
+        <span class="dim-tag">Sleep</span>
+        <span class="suggestion-text">Consider setting a consistent bedtime tonight — Sleep scores have trended down 3 days running.</span>
+      </div>
+      <div class="suggestion-item">
+        <div class="suggestion-rank">#2</div>
+        <span class="dim-tag">Fitness</span>
+        <span class="suggestion-text">Consider a longer workout tomorrow to build on today's brief session.</span>
+      </div>
+      <div class="suggestion-item">
+        <div class="suggestion-rank">#3</div>
+        <span class="dim-tag">Work</span>
+        <span class="suggestion-text">Consider blocking email until noon to protect the morning deep work window.</span>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         SCREENS 3–5 — HISTORY
+    ══════════════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-history-7day">
+      <div class="screen-title mb-12">History</div>
+
+      <div class="history-tabs">
+        <button class="history-tab active" id="tab-7day"   onclick="switchTab('7day')">Past 7 Days</button>
+        <button class="history-tab"        id="tab-30day"  onclick="switchTab('30day')">Past 30 Days</button>
+        <button class="history-tab"        id="tab-custom" onclick="switchTab('custom')">Custom Range</button>
+      </div>
+
+
+      <!-- ── 7-DAY CONTENT ──────────────────────────────── -->
+      <div class="history-sub visible" id="sub-7day">
+
+        <h3 class="mb-8">Soft streaks
+          <span style="font-weight:normal;font-size:12px;color:#666;">(≥5 counts as a decent day)</span>
+        </h3>
+        <div class="streak-strip">
+          <div class="streak-item high-weight">
+            <div class="streak-count">6/7</div>
+            <div class="streak-label">Work</div>
+          </div>
+          <div class="streak-item">
+            <div class="streak-count">5/7</div>
+            <div class="streak-label">Health</div>
+          </div>
+          <div class="streak-item">
+            <div class="streak-count">4/7</div>
+            <div class="streak-label">Fitness</div>
+          </div>
+          <div class="streak-item">
+            <div class="streak-count">3/7</div>
+            <div class="streak-label">Sleep</div>
+          </div>
+        </div>
+
+        <div class="row mb-16">
+
+          <!-- Polar/Radar -->
+          <div class="col">
+            <h3 class="mb-8">Radar — 7-day average</h3>
+            <div class="radar-wrap" style="height:210px;">
+              <svg width="210" height="210" viewBox="0 0 210 210">
+                <polygon points="105,18 186,63 186,147 105,192 24,147 24,63"
+                  fill="none" stroke="#ddd" stroke-width="1"/>
+                <polygon points="105,46 163,78 163,132 105,164 47,132 47,78"
+                  fill="none" stroke="#ddd" stroke-width="1"/>
+                <polygon points="105,74 140,93 140,117 105,136 70,117 70,93"
+                  fill="none" stroke="#ddd" stroke-width="1"/>
+                <line x1="105" y1="105" x2="105" y2="18" stroke="#ccc" stroke-width="1"/>
+                <line x1="105" y1="105" x2="186" y2="63" stroke="#ccc" stroke-width="1"/>
+                <line x1="105" y1="105" x2="186" y2="147" stroke="#ccc" stroke-width="1"/>
+                <line x1="105" y1="105" x2="105" y2="192" stroke="#ccc" stroke-width="1"/>
+                <line x1="105" y1="105" x2="24" y2="147" stroke="#ccc" stroke-width="1"/>
+                <line x1="105" y1="105" x2="24" y2="63" stroke="#ccc" stroke-width="1"/>
+                <polygon points="105,34 172,71 167,135 105,163 51,131 44,72"
+                  fill="#bbb" fill-opacity="0.35" stroke="#777" stroke-width="1.5"/>
+                <text x="105" y="12" text-anchor="middle" font-size="10" fill="#444">Work</text>
+                <text x="192" y="60" font-size="10" fill="#444">Health</text>
+                <text x="192" y="152" font-size="10" fill="#444">Fitness</text>
+                <text x="105" y="208" text-anchor="middle" font-size="10" fill="#444">Sleep</text>
+                <text x="109" y="22"  font-size="9" fill="#999">10</text>
+                <text x="109" y="50"  font-size="9" fill="#999">7</text>
+                <text x="109" y="78"  font-size="9" fill="#999">4</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Activity timeline ribbon -->
+          <div class="col">
+            <h3 class="mb-8">Activity ribbon — daily scores</h3>
+            <div style="overflow-x:auto;">
+              <div class="ribbon-header-row mb-4">
+                <div class="ribbon-spacer"></div>
+                <div class="ribbon-day-ticks">
+                  <div class="ribbon-tick">Apr 28</div>
+                  <div class="ribbon-tick">29</div>
+                  <div class="ribbon-tick">30</div>
+                  <div class="ribbon-tick">May 1</div>
+                  <div class="ribbon-tick">2</div>
+                  <div class="ribbon-tick">3</div>
+                  <div class="ribbon-tick">4</div>
+                </div>
+              </div>
+              <div class="ribbon-row">
+                <div class="ribbon-label" style="font-weight:bold;">Work</div>
+                <div class="ribbon-bars">
+                  <div class="ribbon-bar" style="width:22px;"></div>
+                  <div class="ribbon-bar" style="width:27px;"></div>
+                  <div class="ribbon-bar" style="width:24px;background:#888;"></div>
+                  <div class="ribbon-bar" style="width:30px;background:#666;"></div>
+                  <div class="ribbon-bar" style="width:20px;"></div>
+                  <div class="ribbon-bar" style="width:26px;"></div>
+                  <div class="ribbon-bar" style="width:30px;background:#666;"></div>
+                </div>
+              </div>
+              <div class="ribbon-row">
+                <div class="ribbon-label">Health</div>
+                <div class="ribbon-bars">
+                  <div class="ribbon-bar" style="width:20px;"></div>
+                  <div class="ribbon-bar" style="width:24px;"></div>
+                  <div class="ribbon-bar" style="width:22px;"></div>
+                  <div class="ribbon-bar" style="width:19px;"></div>
+                  <div class="ribbon-bar" style="width:26px;"></div>
+                  <div class="ribbon-bar" style="width:23px;"></div>
+                  <div class="ribbon-bar" style="width:26px;background:#888;"></div>
+                </div>
+              </div>
+              <div class="ribbon-row">
+                <div class="ribbon-label">Fitness</div>
+                <div class="ribbon-bars">
+                  <div class="ribbon-bar" style="width:17px;"></div>
+                  <div class="ribbon-bar" style="width:21px;"></div>
+                  <div class="ribbon-bar" style="width:19px;"></div>
+                  <div class="ribbon-bar" style="width:22px;"></div>
+                  <div class="ribbon-bar" style="width:14px;background:#ddd;"></div>
+                  <div class="ribbon-bar" style="width:18px;"></div>
+                  <div class="ribbon-bar" style="width:22px;"></div>
+                </div>
+              </div>
+              <div class="ribbon-row">
+                <div class="ribbon-label">Sleep</div>
+                <div class="ribbon-bars">
+                  <div class="ribbon-bar" style="width:19px;"></div>
+                  <div class="ribbon-bar" style="width:16px;background:#ddd;"></div>
+                  <div class="ribbon-bar" style="width:15px;background:#ddd;"></div>
+                  <div class="ribbon-bar" style="width:14px;background:#ddd;"></div>
+                  <div class="ribbon-bar" style="width:17px;"></div>
+                  <div class="ribbon-bar" style="width:13px;background:#ddd;"></div>
+                  <div class="ribbon-bar" style="width:19px;"></div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <button class="btn small" onclick="openModal()">→ Open Apr 30 detail (demo)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gap-from-goal bar chart -->
+        <h3 class="mb-8">Gap from goal
+          <span style="font-weight:normal;font-size:12px;color:#666;">(7-day avg vs. personal target)</span>
+        </h3>
+        <div class="bar-legend mb-4">
+          <div class="bar-legend-item">
+            <div class="bar-legend-swatch" style="background:#aaa;"></div>
+            7-day average
+          </div>
+          <div class="bar-legend-item">
+            <div style="width:2px;height:14px;background:#333;display:inline-block;"></div>
+            &nbsp;Goal line
+          </div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label" style="font-weight:bold;">Work</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:72%;"></div>
+            <div class="bar-chart-goal" style="left:80%;"></div>
+          </div>
+          <div class="bar-chart-value">7.2</div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label">Health</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:65%;"></div>
+            <div class="bar-chart-goal" style="left:75%;"></div>
+          </div>
+          <div class="bar-chart-value">6.5</div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label">Fitness</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:58%;"></div>
+            <div class="bar-chart-goal" style="left:70%;"></div>
+          </div>
+          <div class="bar-chart-value">5.8</div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label">Sleep</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:42%;"></div>
+            <div class="bar-chart-goal" style="left:65%;"></div>
+          </div>
+          <div class="bar-chart-value">4.2</div>
+        </div>
+      </div>
+
+
+      <!-- ── 30-DAY CONTENT ─────────────────────────────── -->
+      <div class="history-sub" id="sub-30day">
+
+        <h3 class="mb-8">Dimension heatmap — 30 days</h3>
+        <div class="heatmap-container">
+          <div class="heatmap-month-labels">
+            <span style="font-size:10px;color:#888;width:180px;">Apr 5 →</span>
+            <span style="font-size:10px;color:#888;width:100px;">Apr 19 →</span>
+            <span style="font-size:10px;color:#888;">May 4</span>
+          </div>
+          <div class="heatmap-row">
+            <div class="heatmap-dim-label" style="font-weight:bold;">Work ×8</div>
+            <div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-9"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div>
+            <div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-9"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-9"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-9"></div><div class="heatmap-cell hm-7"></div>
+            <div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-9"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-9"></div>
+            <div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-9"></div>
+          </div>
+          <div class="heatmap-row">
+            <div class="heatmap-dim-label">Health ×6</div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-7"></div>
+          </div>
+          <div class="heatmap-row">
+            <div class="heatmap-dim-label">Fitness ×5</div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-0"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-3"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-7"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-7"></div>
+          </div>
+          <div class="heatmap-row">
+            <div class="heatmap-dim-label">Sleep ×4</div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div>
+            <div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div><div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-3"></div><div class="heatmap-cell hm-5"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:6px;margin-left:82px;font-size:10px;color:#888;">
+            <span>Low</span>
+            <div class="heatmap-cell hm-0"></div>
+            <div class="heatmap-cell hm-3"></div>
+            <div class="heatmap-cell hm-5"></div>
+            <div class="heatmap-cell hm-7"></div>
+            <div class="heatmap-cell hm-9"></div>
+            <span>High</span>
+          </div>
+        </div>
+
+        <h3 class="mb-8">Stacked area — daily scores over 30 days</h3>
+        <div class="chart-placeholder" style="height:140px;margin-bottom:6px;">
+          [ Recharts &lt;AreaChart&gt; — stacked, 4 bands × 30 data points ]
+        </div>
+        <div class="area-legend mb-16">
+          <span>■ Work (wt 8)</span>
+          <span>▪ Health (wt 6)</span>
+          <span>▫ Fitness (wt 5)</span>
+          <span>□ Sleep (wt 4)</span>
+        </div>
+
+        <h3 class="mb-8">Anomaly callouts</h3>
+        <div class="anomaly-card">
+          <div class="anomaly-header">
+            <span class="anomaly-tag">Long gap</span>
+            <strong>Fitness</strong>
+            <span style="font-size:12px;color:#666;">Apr 19 – Apr 24 (5 days)</span>
+          </div>
+          <div style="font-size:13px;">5-day stretch with no Fitness activity recorded — longest gap this month.</div>
+        </div>
+        <div class="anomaly-card">
+          <div class="anomaly-header">
+            <span class="anomaly-tag">Unusual score</span>
+            <strong>Work</strong>
+            <span style="font-size:12px;color:#666;">Apr 28</span>
+          </div>
+          <div style="font-size:13px;">Score of 9.5 — 2.3 points above 30-day Work average. Standout day.</div>
+        </div>
+        <div class="anomaly-card">
+          <div class="anomaly-header">
+            <span class="anomaly-tag">Declining trend</span>
+            <strong>Sleep</strong>
+            <span style="font-size:12px;color:#666;">Past 7 days</span>
+          </div>
+          <div style="font-size:13px;">Sleep score has dropped 0.4 pts/day over the last 7 days — steepest decline this month.</div>
+        </div>
+      </div>
+
+
+      <!-- ── CUSTOM RANGE CONTENT ───────────────────────── -->
+      <div class="history-sub" id="sub-custom">
+
+        <div class="date-picker-row">
+          <span style="font-size:13px;margin-right:4px;">From:</span>
+          <input type="date" class="wf-input" style="width:160px;" value="2026-04-01" />
+          <span style="font-size:13px;margin:0 4px;">To:</span>
+          <input type="date" class="wf-input" style="width:160px;" value="2026-05-04" />
+          <button class="btn primary" style="margin-left:8px;">Apply</button>
+        </div>
+
+        <h3 class="mb-8">Dimension heatmap — custom range</h3>
+        <div class="chart-placeholder" style="height:80px;margin-bottom:16px;">
+          [ Per-dimension heatmap — range-scaled ]
+        </div>
+
+        <h3 class="mb-8">Gap from goal — range average</h3>
+        <div class="bar-legend mb-4">
+          <div class="bar-legend-item">
+            <div class="bar-legend-swatch" style="background:#aaa;"></div>
+            Range-average score
+          </div>
+          <div class="bar-legend-item">
+            <div style="width:2px;height:14px;background:#333;display:inline-block;"></div>
+            &nbsp;Goal line
+          </div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label" style="font-weight:bold;">Work</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:70%;"></div>
+            <div class="bar-chart-goal" style="left:80%;"></div>
+          </div>
+          <div class="bar-chart-value">7.0</div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label">Health</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:63%;"></div>
+            <div class="bar-chart-goal" style="left:75%;"></div>
+          </div>
+          <div class="bar-chart-value">6.3</div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label">Fitness</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:55%;"></div>
+            <div class="bar-chart-goal" style="left:70%;"></div>
+          </div>
+          <div class="bar-chart-value">5.5</div>
+        </div>
+        <div class="bar-chart-row">
+          <div class="bar-chart-label">Sleep</div>
+          <div class="bar-chart-track">
+            <div class="bar-chart-fill" style="width:41%;"></div>
+            <div class="bar-chart-goal" style="left:65%;"></div>
+          </div>
+          <div class="bar-chart-value">4.1</div>
+        </div>
+
+        <h3 class="mb-8 mt-16">Stacked area — custom range</h3>
+        <div class="chart-placeholder" style="height:120px;">
+          [ Recharts &lt;AreaChart&gt; — stacked, custom range ]
+        </div>
+      </div>
+
+    </div><!-- end #screen-history-7day -->
+
+
+    <!-- ══════════════════════════════════════════════════════
+         SCREEN 7 — SETTINGS
+    ══════════════════════════════════════════════════════════ -->
+    <div class="screen" id="screen-settings">
+      <div class="screen-title mb-16">Settings</div>
+
+      <!-- Dimensions -->
+      <div class="settings-section">
+        <div class="settings-section-title">Dimensions</div>
+        <div class="dim-edit-row mb-6">
+          <div class="dim-edit-header">
+            <div><strong>Work</strong> <span style="font-size:11px;color:#666;margin-left:8px;">Weight: 8 / 10</span></div>
+            <button class="btn small">Edit</button>
+          </div>
+        </div>
+        <div class="dim-edit-row mb-6">
+          <div class="dim-edit-header">
+            <div><strong>Health</strong> <span style="font-size:11px;color:#666;margin-left:8px;">Weight: 6 / 10</span></div>
+            <button class="btn small">Edit</button>
+          </div>
+        </div>
+        <div class="dim-edit-row mb-6">
+          <div class="dim-edit-header">
+            <div><strong>Fitness</strong> <span style="font-size:11px;color:#666;margin-left:8px;">Weight: 5 / 10</span></div>
+            <button class="btn small">Edit</button>
+          </div>
+        </div>
+        <div class="dim-edit-row mb-8">
+          <div class="dim-edit-header">
+            <div><strong>Sleep</strong> <span style="font-size:11px;color:#666;margin-left:8px;">Weight: 4 / 10</span></div>
+            <button class="btn small">Edit</button>
+          </div>
+        </div>
+        <button class="btn small">+ Add dimension</button>
+      </div>
+
+      <!-- Rubrics -->
+      <div class="settings-section">
+        <div class="settings-section-title">Rubrics</div>
+        <p style="font-size:13px;margin-bottom:8px;">
+          Rubrics live in <code>rubrics.md</code> in your local data folder.
+          Each dimension has a <code>## Dimension Name</code> section with a 0–10 scoring table.
+        </p>
+        <div style="display:flex;gap:8px;">
+          <button class="btn">Open rubrics.md</button>
+          <button class="btn">Regenerate rubrics</button>
+        </div>
+      </div>
+
+      <!-- API Key -->
+      <div class="settings-section">
+        <div class="settings-section-title">API Key</div>
+        <div class="label mb-4">Anthropic API key</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="wf-input" style="flex:1;" type="password" value="sk-ant-api03-••••••••••••" />
+          <button class="btn">Show</button>
+          <button class="btn">Update</button>
+        </div>
+      </div>
+
+      <!-- Viz toggles -->
+      <div class="settings-section">
+        <div class="settings-section-title">Visualization toggles</div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Dimension heatmap</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Stacked area chart</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Polar / radar chart</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Activity timeline ribbon</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Gap-from-goal bar chart</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Soft streak counters</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Anomaly callouts</span>
+          <div class="toggle-stub on"></div>
+        </div>
+        <div class="toggle-row">
+          <span style="font-size:13px;">Weight-based visual prominence</span>
+          <div class="toggle-stub on"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- end .app -->
+
+
+<script>
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (id === 'today-empty' || id === 'today-graded') {
+    document.getElementById('screen-' + id).classList.add('visible');
+    document.getElementById('nav-today').classList.add('active');
+  } else if (id.startsWith('history')) {
+    document.getElementById('screen-history-7day').classList.add('visible');
+    document.getElementById('nav-history').classList.add('active');
+    switchTab(id.replace('history-', ''));
+  } else if (id === 'settings') {
+    document.getElementById('screen-settings').classList.add('visible');
+    document.getElementById('nav-settings').classList.add('active');
+  }
+}
+
+function switchTab(tab) {
+  document.getElementById('screen-history-7day').classList.add('visible');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-history').classList.add('active');
+  document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.history-sub').forEach(s => s.classList.remove('visible'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('sub-' + tab).classList.add('visible');
+}
+
+function showWizard(step) {
+  document.getElementById('wizard-setup').classList.remove('visible');
+  document.getElementById('wizard-loading').classList.remove('visible');
+  if (step === 'setup')   document.getElementById('wizard-setup').classList.add('visible');
+  if (step === 'loading') document.getElementById('wizard-loading').classList.add('visible');
+}
+
+function dismissWizard() {
+  document.getElementById('wizard-setup').classList.remove('visible');
+  document.getElementById('wizard-loading').classList.remove('visible');
+}
+
+function openModal()  { document.getElementById('modal-past-day').classList.add('visible'); }
+function closeModal() { document.getElementById('modal-past-day').classList.remove('visible'); }
+
+function demo(target) {
+  dismissWizard(); closeModal();
+  document.querySelectorAll('.wf-toolbar button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (target === 'wizard-setup')    showWizard('setup');
+  else if (target === 'wizard-loading') showWizard('loading');
+  else if (target === 'past-day-modal') { goScreen('history-7day'); openModal(); }
+  else goScreen(target);
+}
+
+document.getElementById('entry-textarea').addEventListener('input', function () {
+  document.getElementById('grade-btn').disabled = this.value.trim().length === 0;
+});
+</script>
+
+</body>
+</html>

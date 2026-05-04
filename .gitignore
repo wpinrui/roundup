@@ -6,3 +6,23 @@ out/
 *.db
 *.sqlite
 .env
+
+# Build artifacts
+*.tsbuildinfo
+test-results/
+
+# Packaged binaries
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
