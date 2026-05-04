@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { NavRail } from '@renderer/components/NavRail'
 import { Button } from '@renderer/components/ui/button'
+import { Wizard } from '@renderer/wizard/Wizard'
 import type { AppInfo } from '@shared/ipc'
 
 function TodayPane() {
@@ -31,12 +32,40 @@ function SettingsPane() {
   )
 }
 
+type GateState = 'loading' | 'wizard' | 'app'
+
 export function App() {
+  const [gate, setGate] = useState<GateState>('loading')
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null)
 
-  useEffect(() => {
-    window.api.getAppInfo().then(setAppInfo)
+  const refreshGate = useCallback(async () => {
+    const complete = await window.api.isSetupComplete()
+    setGate(complete ? 'app' : 'wizard')
   }, [])
+
+  // Stable identity — Wizard passes this through to Step3Rubrics as a
+  // useEffect dep; an inline lambda would re-fire the effect on every App
+  // re-render and double-call generateRubrics().
+  const onWizardDone = useCallback(() => {
+    void refreshGate()
+  }, [refreshGate])
+
+  useEffect(() => {
+    void refreshGate()
+    void window.api.getAppInfo().then(setAppInfo)
+  }, [refreshGate])
+
+  if (gate === 'loading') {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-background text-muted-foreground">
+        Loading…
+      </div>
+    )
+  }
+
+  if (gate === 'wizard') {
+    return <Wizard onDone={onWizardDone} />
+  }
 
   return (
     <HashRouter>
