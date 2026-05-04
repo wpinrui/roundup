@@ -7,7 +7,7 @@
  */
 
 import { readFileSync } from 'fs'
-import { eq, asc, inArray } from 'drizzle-orm'
+import { eq, and, asc, inArray, gte, lte } from 'drizzle-orm'
 import type {
   DayRow,
   DaySummary,
@@ -41,6 +41,100 @@ export async function getDay(db: DrizzleClient, date: string): Promise<DayRow | 
     scores: dayScores,
     suggestions: daySuggestions,
   }
+}
+
+/**
+ * All `DayRow`s in [start, end] inclusive, ordered by date asc, fully joined
+ * with scores + suggestions (same shape as `getDay`). Built around bulk
+ * queries (one for days, one for scores, one for suggestions, then assembled
+ * in memory) so we don't fan out N+1 round-trips for a 365-day window.
+ */
+export async function getDaysInRange(
+  db: DrizzleClient,
+  start: string,
+  end: string
+): Promise<DayRow[]> {
+  if (!isValidDate(start) || !isValidDate(end)) {
+    throw new Error(`Invalid date range "${start}..${end}" — expected YYYY-MM-DD.`)
+  }
+  if (start > end) {
+    throw new Error(`Invalid date range: start "${start}" is after end "${end}".`)
+  }
+
+  const dayRows = await db
+    .select()
+    .from(days)
+    .where(and(gte(days.date, start), lte(days.date, end)))
+    .orderBy(asc(days.date))
+  if (dayRows.length === 0) return []
+
+  const dates = dayRows.map((d) => d.date)
+
+  const [scoreRows, suggestionRows] = await Promise.all([
+    db
+      .select({
+        dayDate: scores.dayDate,
+        dimensionId: scores.dimensionId,
+        score: scores.score,
+        hoursEstimated: scores.hoursEstimated,
+        dimensionName: dimensions.name,
+        weight: dimensions.weight,
+      })
+      .from(scores)
+      .innerJoin(dimensions, eq(scores.dimensionId, dimensions.id))
+      .where(inArray(scores.dayDate, dates))
+      .orderBy(asc(dimensions.id)),
+    db
+      .select({
+        dayDate: suggestions.dayDate,
+        dimensionId: suggestions.dimensionId,
+        rank: suggestions.rank,
+        text: suggestions.text,
+        mode: suggestions.mode,
+        dimensionName: dimensions.name,
+      })
+      .from(suggestions)
+      .innerJoin(dimensions, eq(suggestions.dimensionId, dimensions.id))
+      .where(inArray(suggestions.dayDate, dates))
+      .orderBy(asc(suggestions.rank)),
+  ])
+
+  const scoresByDate = new Map<string, DayScore[]>()
+  for (const r of scoreRows) {
+    const arr = scoresByDate.get(r.dayDate) ?? []
+    arr.push({
+      dimensionId: r.dimensionId,
+      dimensionName: r.dimensionName,
+      weight: r.weight,
+      score: r.score,
+      hoursEstimated: r.hoursEstimated,
+    })
+    scoresByDate.set(r.dayDate, arr)
+  }
+
+  const suggestionsByDate = new Map<string, DaySuggestion[]>()
+  for (const r of suggestionRows) {
+    const arr = suggestionsByDate.get(r.dayDate) ?? []
+    arr.push({
+      dimensionId: r.dimensionId,
+      dimensionName: r.dimensionName,
+      rank: r.rank,
+      text: r.text,
+      mode: r.mode,
+    })
+    suggestionsByDate.set(r.dayDate, arr)
+  }
+
+  return dayRows.map((d) => ({
+    date: d.date,
+    rawEntry: d.rawEntry,
+    createdAt: d.createdAt,
+    gradedAt: d.gradedAt,
+    aiNarrative: d.aiNarrative,
+    weightedOverallScore: d.weightedOverallScore,
+    scores: scoresByDate.get(d.date) ?? [],
+    suggestions: suggestionsByDate.get(d.date) ?? [],
+  }))
 }
 
 /** Lightweight summary per existing day — used for prev/next nav bounds. */
