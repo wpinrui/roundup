@@ -4,16 +4,9 @@ import { NavRail } from '@renderer/components/NavRail'
 import { Wizard } from '@renderer/wizard/Wizard'
 import { TodayPane } from '@renderer/today/TodayPane'
 import { SettingsPane } from '@renderer/settings/SettingsPane'
+import { HistoryPane } from '@renderer/history/HistoryPane'
 import { todayLocalDate } from '@renderer/today/dateUtils'
 import type { AppInfo } from '@shared/ipc'
-
-function HistoryPane() {
-  return (
-    <div className="flex h-full items-center justify-center text-muted-foreground">
-      History — coming soon
-    </div>
-  )
-}
 
 type GateState = 'loading' | 'wizard' | 'app'
 
