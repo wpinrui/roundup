@@ -31,6 +31,7 @@ npm run dev        # Start Electron app with HMR
 | `npm run format` | Prettier formatting |
 | `npm run test` | Vitest unit tests |
 | `npm run e2e` | Build + run Playwright E2E smoke tests |
+| `npm run drizzle:generate` | Generate a new SQL migration after editing `src/main/db/schema.ts` |
 
 ## Testing
 
@@ -76,4 +77,6 @@ e2e/            Playwright Electron smoke tests
 | `scores` | Per-day per-dimension AI grades and hours-estimated |
 | `suggestions` | AI-generated candidate suggestions for tomorrow (`fix` or `stretch` mode) |
 
-Migrations run automatically on app start via `runMigrations()`.
+`src/main/db/schema.ts` is the single source of truth. Edit it, then run `npm run drizzle:generate` to produce a new SQL migration in `drizzle/`. Generated files are committed to git and bundled into the packaged app via `electron-builder.yml` `extraResources`. Migrations run automatically on app start.
+
+CHECK constraints (weight `1–10`, score `0–10`, suggestion rank `> 0`, mode in `('fix','stretch')`) are enforced at the database layer — the application does not re-validate.

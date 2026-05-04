@@ -5,9 +5,12 @@ directories:
 
 files:
   - 'out/**/*'
-  - '!**/.eslintrc.cjs'
-  - '!**/.prettierrc'
-  - '!**/tsconfig*.json'
+
+extraResources:
+  - from: drizzle
+    to: drizzle
+    filter:
+      - '**/*'
 
 win:
   target:

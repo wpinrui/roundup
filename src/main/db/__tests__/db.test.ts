@@ -1,19 +1,24 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import path from 'path'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
-import { runMigrations } from '../migrate'
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { days, dimensions, scores, suggestions } from '../schema'
 import * as schema from '../schema'
 
 type DB = ReturnType<typeof drizzle<typeof schema>>
+
+const migrationsFolder = path.resolve(__dirname, '../../../../drizzle')
 
 describe('database schema', () => {
   let db: DB
 
   beforeEach(() => {
     const sqlite = new Database(':memory:')
-    runMigrations(sqlite)
+    // Mirror production pragmas so tests catch FK violations the same way prod does.
+    sqlite.pragma('foreign_keys = ON')
     db = drizzle(sqlite, { schema })
+    migrate(db, { migrationsFolder })
   })
 
   it('inserts and reads a day', async () => {
@@ -109,7 +114,7 @@ describe('database schema', () => {
     expect(result[0].rank).toBe(1)
   })
 
-  it('enforces suggestion mode constraint', async () => {
+  it('rejects suggestion with invalid mode (CHECK constraint)', async () => {
     await db.insert(days).values({
       date: '2026-01-01',
       rawEntry: 'Test',
@@ -134,6 +139,113 @@ describe('database schema', () => {
         rank: 1,
         text: 'Bad mode',
         mode: 'invalid' as 'fix',
+      })
+    ).rejects.toThrow()
+  })
+
+  it('rejects dimension weight outside 1–10 (CHECK constraint)', async () => {
+    await expect(
+      db.insert(dimensions).values({
+        name: 'OOR',
+        weight: 11,
+        successText: '',
+        constraintsText: '',
+        antiGoalsText: '',
+        createdAt: new Date().toISOString(),
+      })
+    ).rejects.toThrow()
+  })
+
+  it('rejects score outside 0–10 (CHECK constraint)', async () => {
+    await db.insert(days).values({
+      date: '2026-01-01',
+      rawEntry: 'x',
+      createdAt: new Date().toISOString(),
+    })
+    const [dim] = await db
+      .insert(dimensions)
+      .values({
+        name: 'X',
+        weight: 5,
+        successText: '',
+        constraintsText: '',
+        antiGoalsText: '',
+        createdAt: new Date().toISOString(),
+      })
+      .returning()
+
+    await expect(
+      db.insert(scores).values({
+        dayDate: '2026-01-01',
+        dimensionId: dim.id,
+        score: 11,
+      })
+    ).rejects.toThrow()
+  })
+
+  it('rejects suggestion rank ≤ 0 (CHECK constraint)', async () => {
+    await db.insert(days).values({
+      date: '2026-01-01',
+      rawEntry: 'x',
+      createdAt: new Date().toISOString(),
+    })
+    const [dim] = await db
+      .insert(dimensions)
+      .values({
+        name: 'X',
+        weight: 5,
+        successText: '',
+        constraintsText: '',
+        antiGoalsText: '',
+        createdAt: new Date().toISOString(),
+      })
+      .returning()
+
+    await expect(
+      db.insert(suggestions).values({
+        dayDate: '2026-01-01',
+        dimensionId: dim.id,
+        rank: 0,
+        text: 'bad',
+        mode: 'fix',
+      })
+    ).rejects.toThrow()
+  })
+
+  it('rejects score with non-existent day_date (FK constraint)', async () => {
+    const [dim] = await db
+      .insert(dimensions)
+      .values({
+        name: 'X',
+        weight: 5,
+        successText: '',
+        constraintsText: '',
+        antiGoalsText: '',
+        createdAt: new Date().toISOString(),
+      })
+      .returning()
+
+    await expect(
+      db.insert(scores).values({
+        dayDate: '2099-01-01', // no such day
+        dimensionId: dim.id,
+        score: 5,
+      })
+    ).rejects.toThrow()
+  })
+
+  it('rejects score with non-existent dimension_id (FK constraint)', async () => {
+    await db.insert(days).values({
+      date: '2026-01-01',
+      rawEntry: 'x',
+      createdAt: new Date().toISOString(),
+    })
+
+    await expect(
+      db.insert(scores).values({
+        dayDate: '2026-01-01',
+        dimensionId: 99999, // no such dimension
+        score: 5,
       })
     ).rejects.toThrow()
   })

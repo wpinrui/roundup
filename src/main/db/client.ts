@@ -1,20 +1,21 @@
 import path from 'path'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { app } from 'electron'
 import log from 'electron-log/main'
 import * as schema from './schema'
-import { runMigrations } from './migrate'
 
 export type DrizzleClient = ReturnType<typeof drizzle<typeof schema>>
 
-let _db: DrizzleClient | null = null
-
-export function getDb(): DrizzleClient {
-  if (!_db) {
-    throw new Error('Database not initialised — call initDb() first')
-  }
-  return _db
+/**
+ * Migrations folder path. Bundled with the app via electron-builder's
+ * `extraResources`; in dev it's at the project root.
+ */
+function getMigrationsFolder(): string {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'drizzle')
+    : path.join(__dirname, '../../drizzle')
 }
 
 export function initDb(): DrizzleClient {
@@ -25,9 +26,9 @@ export function initDb(): DrizzleClient {
   sqlite.pragma('journal_mode = WAL')
   sqlite.pragma('foreign_keys = ON')
 
-  runMigrations(sqlite)
+  const db = drizzle(sqlite, { schema })
+  migrate(db, { migrationsFolder: getMigrationsFolder() })
   log.info('Migrations complete')
 
-  _db = drizzle(sqlite, { schema })
-  return _db
+  return db
 }

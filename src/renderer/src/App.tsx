@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { NavRail } from '@renderer/components/NavRail'
 import { Button } from '@renderer/components/ui/button'
-import type { AppInfo } from '../../shared/ipc'
+import type { AppInfo } from '@shared/ipc'
 
 function TodayPane() {
   return (

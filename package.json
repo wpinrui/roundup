@@ -7,6 +7,7 @@
   "scripts": {
     "rebuild:electron": "electron-rebuild -f -w better-sqlite3",
     "rebuild:node": "npm rebuild better-sqlite3",
+    "drizzle:generate": "drizzle-kit generate",
     "predev": "npm run rebuild:electron",
     "dev": "electron-vite dev",
     "prebuild": "npm run rebuild:electron",
@@ -24,7 +25,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.26.0",
     "better-sqlite3": "^12.9.0",
-    "drizzle-orm": "^0.30.10",
+    "drizzle-orm": "^0.36.0",
     "electron-log": "^5.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -45,7 +46,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "@electron/rebuild": "^3.6.0",
-    "drizzle-kit": "^0.21.4",
+    "drizzle-kit": "^0.28.0",
     "electron": "^31.0.0",
     "electron-builder": "^24.13.3",
     "electron-vite": "^2.3.0",
