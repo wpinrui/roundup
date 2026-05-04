@@ -10,6 +10,8 @@
     "drizzle:generate": "drizzle-kit generate",
     "preengine:wizard": "npm run rebuild:node",
     "engine:wizard": "tsx scripts/engine-wizard.ts",
+    "preengine:grade": "npm run rebuild:node",
+    "engine:grade": "tsx scripts/engine-grade.ts",
     "predev": "npm run rebuild:electron",
     "dev": "electron-vite dev",
     "prebuild": "npm run rebuild:electron",
