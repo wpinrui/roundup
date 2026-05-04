@@ -18,6 +18,8 @@ const api: RoundupAPI = {
   saveDayText: (date: string, text: string) =>
     ipcRenderer.invoke('save-day-text', date, text),
   gradeDay: (date: string) => ipcRenderer.invoke('grade-day', date),
+  getDaysInRange: (start: string, end: string) =>
+    ipcRenderer.invoke('get-days-in-range', start, end),
 
   // Settings
   listDimensions: () => ipcRenderer.invoke('list-dimensions'),

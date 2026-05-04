@@ -17,7 +17,7 @@ import { verifyKey } from '../ai/verify'
 import { saveApiKey, getStoredApiKey } from '../api-key'
 import { isSetupComplete, rubricsPath } from '../setup'
 import { saveDimensions, generateAndPersistRubrics } from '../wizard'
-import { getDay, listDays, saveDayText, gradeDay } from '../day'
+import { getDay, getDaysInRange, listDays, saveDayText, gradeDay } from '../day'
 import { listDimensions, updateDimensions } from '../dimensions'
 import { getVizToggles, setVizToggle, updateApiKey } from '../settings'
 
@@ -89,6 +89,14 @@ export function registerIpcHandlers(db: DrizzleClient | null): void {
     if (!db) throw new Error('Database is not available.')
     return listDays(db)
   })
+
+  ipcMain.handle(
+    'get-days-in-range',
+    async (_evt, start: string, end: string): Promise<DayRow[]> => {
+      if (!db) throw new Error('Database is not available.')
+      return getDaysInRange(db, start, end)
+    }
+  )
 
   ipcMain.handle(
     'save-day-text',

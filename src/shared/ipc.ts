@@ -185,4 +185,15 @@ export interface RoundupAPI {
 
   /** Persist a single viz toggle. */
   setVizToggle: (key: VizToggleKey, on: boolean) => Promise<void>
+
+  // ── History ───────────────────────────────────────────────────────────
+  /**
+   * All `DayRow`s with a row in `days` whose date is in [start, end] inclusive,
+   * ordered ascending. Each row is fully joined with scores + suggestions in
+   * the same shape as `getDay`. Empty array when no days match.
+   *
+   * Inputs are ISO date strings (`YYYY-MM-DD`). The handler does not enforce
+   * a range cap — call-sites should clamp to the product max (365 days).
+   */
+  getDaysInRange: (start: string, end: string) => Promise<DayRow[]>
 }

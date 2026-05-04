@@ -55,6 +55,8 @@ export async function seedAppViaIpc(
   opts: {
     dimensions: SeedDimension[]
     savedDay?: { date: string; rawEntry: string }
+    /** Each entry is saved AND graded (mock-Anthropic, deterministic). */
+    gradedDays?: Array<{ date: string; rawEntry: string }>
     apiKey?: string
   }
 ): Promise<void> {
@@ -69,6 +71,7 @@ export async function seedAppViaIpc(
       type Api = {
         saveDimensions: (d: typeof data.dimensions) => Promise<void>
         saveDayText: (date: string, text: string) => Promise<unknown>
+        gradeDay: (date: string) => Promise<unknown>
         saveApiKey: (k: string) => Promise<void>
       }
       const api = (globalThis as { api: Api }).api
@@ -76,6 +79,12 @@ export async function seedAppViaIpc(
       await api.saveDimensions(data.dimensions)
       if (data.savedDay) {
         await api.saveDayText(data.savedDay.date, data.savedDay.rawEntry)
+      }
+      if (data.gradedDays) {
+        for (const g of data.gradedDays) {
+          await api.saveDayText(g.date, g.rawEntry)
+          await api.gradeDay(g.date)
+        }
       }
     },
     { ...opts, apiKey }

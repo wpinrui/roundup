@@ -13,7 +13,7 @@ vi.mock('../ai/grade', () => ({
   gradeDay: (...args: unknown[]) => gradeMock(...args),
 }))
 
-const { getDay, listDays, saveDayText, gradeDay } = await import('../day')
+const { getDay, getDaysInRange, listDays, saveDayText, gradeDay } = await import('../day')
 
 type DB = ReturnType<typeof drizzle<typeof schema>>
 const migrationsFolder = path.resolve(__dirname, '../../../drizzle')
@@ -83,6 +83,86 @@ describe('listDays', () => {
     for (const r of rows) expect(r.gradedAt).toBeNull()
   })
 })
+
+describe('getDaysInRange', () => {
+  it('returns empty when no days fall in the range', async () => {
+    const db = freshDb()
+    const rows = await getDaysInRange(db, '2026-05-01', '2026-05-31')
+    expect(rows).toEqual([])
+  })
+
+  it('rejects invalid dates', async () => {
+    const db = freshDb()
+    await expect(getDaysInRange(db, '5/1/26', '2026-05-31')).rejects.toThrow(/YYYY-MM-DD/)
+    await expect(getDaysInRange(db, '2026-05-01', '5/31/26')).rejects.toThrow(/YYYY-MM-DD/)
+  })
+
+  it('rejects start > end', async () => {
+    const db = freshDb()
+    await expect(getDaysInRange(db, '2026-05-10', '2026-05-01')).rejects.toThrow(/start.*after end/i)
+  })
+
+  it('returns ungraded rows with empty scores + suggestions', async () => {
+    const db = freshDb()
+    await saveDayText(db, '2026-05-01', 'a')
+    await saveDayText(db, '2026-05-04', 'b')
+    const rows = await getDaysInRange(db, '2026-05-01', '2026-05-31')
+    expect(rows).toHaveLength(2)
+    expect(rows[0].date).toBe('2026-05-01')
+    expect(rows[1].date).toBe('2026-05-04')
+    for (const r of rows) {
+      expect(r.scores).toEqual([])
+      expect(r.suggestions).toEqual([])
+    }
+  })
+
+  it('respects inclusive bounds and excludes outside dates', async () => {
+    const db = freshDb()
+    await saveDayText(db, '2026-04-30', 'before')
+    await saveDayText(db, '2026-05-01', 'a')
+    await saveDayText(db, '2026-05-04', 'b')
+    await saveDayText(db, '2026-05-05', 'after')
+    const rows = await getDaysInRange(db, '2026-05-01', '2026-05-04')
+    expect(rows.map((r) => r.date)).toEqual(['2026-05-01', '2026-05-04'])
+  })
+
+  it('joins scores + suggestions with dimension name + weight', async () => {
+    const db = freshDb()
+    const dims = await seedDimensions(db)
+    const dir = setupRubricsDir()
+    await saveDayText(db, '2026-05-04', 'today text')
+    gradeMock.mockResolvedValue({
+      narrative: 'A solid day.',
+      scores: [
+        { dimensionId: dims[0].id, score: 7, hoursEstimated: 4 },
+        { dimensionId: dims[1].id, score: 6, hoursEstimated: 1 },
+      ],
+      weightedOverallScore: 6.5,
+      candidateSuggestions: [
+        { dimensionId: dims[0].id, text: 'Consider X' },
+        { dimensionId: dims[1].id, text: 'Try Y' },
+      ],
+    })
+    await gradeDay(db, 'k', dir, '2026-05-04')
+
+    const rows = await getDaysInRange(db, '2026-05-01', '2026-05-31')
+    expect(rows).toHaveLength(1)
+    const r = rows[0]
+    expect(r.gradedAt).not.toBeNull()
+    expect(r.scores).toHaveLength(2)
+    const work = r.scores.find((s) => s.dimensionName === 'Work')!
+    expect(work.weight).toBe(8)
+    expect(work.hoursEstimated).toBe(4)
+    expect(r.suggestions.length).toBeGreaterThan(0)
+    for (const s of r.suggestions) expect(s.dimensionName).toBeTruthy()
+  })
+})
+
+function setupRubricsDir(): string {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'roundup-range-test-'))
+  writeFileSync(path.join(dir, 'rubrics.md'), '## Work\n## Health\n', 'utf8')
+  return dir
+}
 
 describe('saveDayText', () => {
   it('rejects an invalid date format', async () => {
