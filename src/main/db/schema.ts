@@ -91,3 +91,13 @@ export const suggestions = sqliteTable(
     modeEnum: check('suggestions_mode_enum', sql`${table.mode} IN ('fix', 'stretch')`),
   })
 )
+
+/**
+ * Key/value bag for app-wide preferences (viz toggles today, room for more
+ * later). Values are JSON-serialised text so any small primitive or shape
+ * fits without further migrations.
+ */
+export const appSettings = sqliteTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+})
