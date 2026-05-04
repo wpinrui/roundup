@@ -43,6 +43,13 @@ export function App() {
     setGate(complete ? 'app' : 'wizard')
   }, [])
 
+  // Stable identity — Wizard passes this through to Step3Rubrics as a
+  // useEffect dep; an inline lambda would re-fire the effect on every App
+  // re-render and double-call generateRubrics().
+  const onWizardDone = useCallback(() => {
+    void refreshGate()
+  }, [refreshGate])
+
   useEffect(() => {
     void refreshGate()
     void window.api.getAppInfo().then(setAppInfo)
@@ -57,7 +64,7 @@ export function App() {
   }
 
   if (gate === 'wizard') {
-    return <Wizard onDone={() => void refreshGate()} />
+    return <Wizard onDone={onWizardDone} />
   }
 
   return (

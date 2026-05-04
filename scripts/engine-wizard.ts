@@ -19,7 +19,7 @@
  * Run via: tsx scripts/engine-wizard.ts < spec.json
  */
 
-import { mkdtempSync, mkdirSync } from 'fs'
+import { mkdtempSync } from 'fs'
 import path from 'path'
 import os from 'os'
 import Database from 'better-sqlite3'
@@ -65,7 +65,6 @@ async function main(): Promise<void> {
   }
 
   const tempDir = mkdtempSync(path.join(os.tmpdir(), 'roundup-engine-'))
-  mkdirSync(tempDir, { recursive: true })
 
   // Step 1
   const verify = await verifyKey(spec.apiKey)

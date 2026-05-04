@@ -9,6 +9,16 @@ import { registerIpcHandlers } from './ipc/handlers'
 
 log.initialize()
 
+// Belt-and-suspenders for the ROUNDUP_E2E_MOCK_ANTHROPIC test hook in
+// src/main/ai/{verify,rubrics}.ts: in a packaged build, scrub the env var
+// before anything else imports it, so the AI mock cannot be enabled in
+// production even if the variable is somehow set in the user's environment.
+// The AI module is deliberately electron-free (the CLI engine harness imports
+// it from plain Node), so the guard belongs here, not in the AI module.
+if (app.isPackaged) {
+  delete process.env['ROUNDUP_E2E_MOCK_ANTHROPIC']
+}
+
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 1200,
