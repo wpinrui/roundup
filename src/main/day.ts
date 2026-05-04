@@ -121,42 +121,52 @@ export async function gradeDay(
   const graded = await callGrader({ apiKey, dimensions: dimensionRows, rubrics, dayText: existing.rawEntry })
   const ranked = rankSuggestions({ graded, todayDate: date, dimensions: dimensionRows, history })
 
-  // Re-grade overwrites in place (decision B1). Delete any prior scores +
-  // suggestions for this day, then insert fresh.
-  await db.delete(scores).where(eq(scores.dayDate, date))
-  await db.delete(suggestions).where(eq(suggestions.dayDate, date))
-
-  if (graded.scores.length > 0) {
-    await db.insert(scores).values(
-      graded.scores.map((s) => ({
-        dayDate: date,
-        dimensionId: s.dimensionId,
-        score: s.score,
-        hoursEstimated: s.hoursEstimated,
-      }))
-    )
-  }
-  if (ranked.suggestions.length > 0) {
-    await db.insert(suggestions).values(
-      ranked.suggestions.map((s) => ({
-        dayDate: date,
-        dimensionId: s.dimensionId,
-        rank: s.rank,
-        text: s.text,
-        mode: s.mode,
-      }))
-    )
-  }
-
+  // Re-grade overwrites in place (decision B1). Wrap delete-then-insert-then-
+  // update in a transaction so a crash mid-write can't leave the day visible
+  // as graded with mismatched data (e.g. new scores but stale narrative).
+  // The AI call deliberately stays outside — drizzle's better-sqlite3
+  // transactions are sync, and a network round-trip inside one would block
+  // the DB for the duration of the call.
   const gradedAt = new Date().toISOString()
-  await db
-    .update(days)
-    .set({
-      gradedAt,
-      aiNarrative: graded.narrative,
-      weightedOverallScore: graded.weightedOverallScore,
-    })
-    .where(eq(days.date, date))
+  db.transaction((tx) => {
+    tx.delete(scores).where(eq(scores.dayDate, date)).run()
+    tx.delete(suggestions).where(eq(suggestions.dayDate, date)).run()
+
+    if (graded.scores.length > 0) {
+      tx.insert(scores)
+        .values(
+          graded.scores.map((s) => ({
+            dayDate: date,
+            dimensionId: s.dimensionId,
+            score: s.score,
+            hoursEstimated: s.hoursEstimated,
+          }))
+        )
+        .run()
+    }
+    if (ranked.suggestions.length > 0) {
+      tx.insert(suggestions)
+        .values(
+          ranked.suggestions.map((s) => ({
+            dayDate: date,
+            dimensionId: s.dimensionId,
+            rank: s.rank,
+            text: s.text,
+            mode: s.mode,
+          }))
+        )
+        .run()
+    }
+
+    tx.update(days)
+      .set({
+        gradedAt,
+        aiNarrative: graded.narrative,
+        weightedOverallScore: graded.weightedOverallScore,
+      })
+      .where(eq(days.date, date))
+      .run()
+  })
 
   const fresh = await getDay(db, date)
   if (!fresh) throw new Error(`gradeDay: failed to read back row for ${date}.`)
