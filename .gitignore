@@ -1,0 +1,8 @@
+.claude/
+.agent/
+node_modules/
+dist/
+out/
+*.db
+*.sqlite
+.env
