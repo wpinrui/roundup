@@ -76,7 +76,6 @@ export function PastDayModal({ date, onClose }: Props) {
           </Button>
           <Button
             onClick={goToDay}
-            disabled={!date}
             className="bg-warm-gradient text-white shadow-warm-glow hover:opacity-90"
             data-testid="modal-go-to-day"
           >

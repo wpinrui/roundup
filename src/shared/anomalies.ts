@@ -15,7 +15,7 @@
 
 import type { DayRow } from './ipc'
 
-export interface LongGapAnomaly {
+interface LongGapAnomaly {
   type: 'long-gap'
   dimId: number
   dimName: string
@@ -24,7 +24,7 @@ export interface LongGapAnomaly {
   dayCount: number
 }
 
-export interface UnusualAnomaly {
+interface UnusualAnomaly {
   type: 'unusual'
   dimId: number
   dimName: string
@@ -34,7 +34,7 @@ export interface UnusualAnomaly {
   deltaPts: number
 }
 
-export interface DecliningAnomaly {
+interface DecliningAnomaly {
   type: 'declining'
   dimId: number
   dimName: string
@@ -43,6 +43,11 @@ export interface DecliningAnomaly {
   slopePerDay: number
 }
 
+/**
+ * Discriminated union — narrow with `if (a.type === '...')` to get the
+ * variant-specific fields. Sub-interfaces are deliberately not exported;
+ * consumers narrow off the union without needing to import them.
+ */
 export type Anomaly = LongGapAnomaly | UnusualAnomaly | DecliningAnomaly
 
 const LONG_GAP_THRESHOLD_SCORE = 2

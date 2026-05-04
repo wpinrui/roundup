@@ -32,7 +32,7 @@ export function daysBetween(from: string, to: string): number {
  * Each bucket has an array of the dates that fall inside it. Empty input
  * returns an empty array.
  */
-export interface DateBucket {
+interface DateBucket {
   /** ISO date of the Monday that opens the bucket (inclusive). */
   weekStart: string
   /** ISO date of the Sunday that closes the bucket (inclusive). */
@@ -64,8 +64,7 @@ export function formatRangeLabel(start: string, end: string): string {
 }
 
 function formatShort(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number)
-  void y
+  const [, m, d] = iso.split('-').map(Number)
   return `${MONTHS_SHORT[m - 1]} ${d}`
 }
 

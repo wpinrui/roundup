@@ -13,7 +13,7 @@ import type { DayRow } from './ipc'
 
 export const STREAK_THRESHOLD = 5
 
-export interface DimStreak {
+interface DimStreak {
   dimId: number
   dimName: string
   /** Days in the window at-or-above threshold. */
