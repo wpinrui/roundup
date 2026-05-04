@@ -1,7 +1,7 @@
 import type { DayRow } from '@shared/ipc'
 import { detectAnomalies, type Anomaly } from '@shared/anomalies'
 import { cn } from '@renderer/lib/utils'
-import { ChartCard } from './Heatmap'
+import { ChartCard } from './ChartCard'
 
 interface Props {
   days: DayRow[]

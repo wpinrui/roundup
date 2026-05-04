@@ -1,10 +1,14 @@
 import type { DayRow } from '@shared/ipc'
 import { cn } from '@renderer/lib/utils'
+import { ChartCard } from './ChartCard'
 
 interface Props {
   days: DayRow[]
   onPickDate: (date: string) => void
 }
+
+const TITLE = 'Heatmap'
+const DESCRIPTION = 'Intensity = score. Click a cell to open the day.'
 
 /**
  * GitHub-style intensity grid. Rows = dimensions (weight-desc per decision Q),
@@ -15,11 +19,15 @@ interface Props {
 export function Heatmap({ days, onPickDate }: Props) {
   const dims = collectDimensions(days)
   if (dims.length === 0 || days.length === 0) {
-    return <EmptyState message="No graded days in this range yet." />
+    return (
+      <ChartCard title={TITLE} description={DESCRIPTION}>
+        <p className="text-sm text-muted-foreground">No graded days in this range yet.</p>
+      </ChartCard>
+    )
   }
 
   return (
-    <ChartCard title="Heatmap" description="Intensity = score. Click a cell to open the day.">
+    <ChartCard title={TITLE} description={DESCRIPTION}>
       <div className="overflow-x-auto" data-testid="chart-heatmap">
         <div className="inline-block">
           {dims.map((d) => (
@@ -102,30 +110,3 @@ function scoreToColour(score: number): string {
   return `rgb(${r}, ${g}, ${bl})`
 }
 
-export function ChartCard({
-  title,
-  description,
-  children,
-}: {
-  title: string
-  description?: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="rounded-card bg-secondary p-5 shadow-warm animate-fade-up">
-      <header className="mb-3">
-        <h3 className="text-lg font-bold">{title}</h3>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
-      </header>
-      {children}
-    </section>
-  )
-}
-
-export function EmptyState({ message }: { message: string }) {
-  return (
-    <ChartCard title="">
-      <p className="text-sm text-muted-foreground">{message}</p>
-    </ChartCard>
-  )
-}

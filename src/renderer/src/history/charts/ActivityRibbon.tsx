@@ -1,11 +1,14 @@
 import type { DayRow } from '@shared/ipc'
 import { cn } from '@renderer/lib/utils'
-import { ChartCard, EmptyState } from './Heatmap'
+import { ChartCard } from './ChartCard'
 
 interface Props {
   days: DayRow[]
   onPickDate: (date: string) => void
 }
+
+const TITLE = 'Activity ribbon'
+const DESCRIPTION = 'Bar length = score; click for the day.'
 
 /**
  * Horizontal bars across days, one row per dim (weight-desc). Bar width
@@ -14,11 +17,15 @@ interface Props {
 export function ActivityRibbon({ days, onPickDate }: Props) {
   const dims = collectDims(days)
   if (dims.length === 0 || days.length === 0) {
-    return <EmptyState message="No graded days in this range yet." />
+    return (
+      <ChartCard title={TITLE} description={DESCRIPTION}>
+        <p className="text-sm text-muted-foreground">No graded days in this range yet.</p>
+      </ChartCard>
+    )
   }
 
   return (
-    <ChartCard title="Activity ribbon" description="Bar length = score; click for the day.">
+    <ChartCard title={TITLE} description={DESCRIPTION}>
       <div className="overflow-x-auto" data-testid="chart-ribbon">
         <div className="inline-block">
           {dims.map((d) => (

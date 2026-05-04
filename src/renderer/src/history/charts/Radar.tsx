@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts'
-import { ChartCard } from './Heatmap'
+import { ChartCard } from './ChartCard'
 
 interface Props {
   days: DayRow[]

@@ -1,6 +1,6 @@
 import type { DayRow } from '@shared/ipc'
 import { computeStreaks } from '@shared/streaks'
-import { ChartCard } from './Heatmap'
+import { ChartCard } from './ChartCard'
 
 interface Props {
   days: DayRow[]

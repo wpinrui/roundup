@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { ChartCard } from './Heatmap'
+import { ChartCard } from './ChartCard'
 
 const GOAL = 7 // brief locks universal goal=7 per dim
 

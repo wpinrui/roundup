@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { ChartCard } from './Heatmap'
+import { ChartCard } from './ChartCard'
 import { bucketByWeek } from '../historyDateUtils'
 
 interface Props {
