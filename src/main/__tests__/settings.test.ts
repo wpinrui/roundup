@@ -4,12 +4,8 @@ import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import * as schema from '../db/schema'
-import {
-  getVizToggles,
-  setVizToggle,
-  updateApiKey,
-  VIZ_TOGGLE_KEYS,
-} from '../settings'
+import { getVizToggles, setVizToggle, updateApiKey } from '../settings'
+import { VIZ_TOGGLE_KEYS } from '@shared/ipc'
 
 type DB = ReturnType<typeof drizzle<typeof schema>>
 const migrationsFolder = path.resolve(__dirname, '../../../drizzle')

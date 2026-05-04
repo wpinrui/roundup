@@ -10,6 +10,13 @@ export interface AppInfo {
   platform: NodeJS.Platform
 }
 
+/**
+ * Bounds on the number of dimensions a user may track. Single source of truth
+ * across both processes — DB layer, settings update, wizard UI, settings UI.
+ */
+export const DIMENSION_COUNT_MIN = 1
+export const DIMENSION_COUNT_MAX = 8
+
 /** Shape of a dimension as collected from the wizard form (no id, no createdAt). */
 export interface DimensionInput {
   name: string
@@ -87,15 +94,23 @@ export interface DaySummary {
   gradedAt: string | null
 }
 
-/** The 7 viz toggles the Settings page surfaces (decision Q removed weight-based). */
-export type VizToggleKey =
-  | 'heatmap'
-  | 'stackedArea'
-  | 'radar'
-  | 'ribbon'
-  | 'gapFromGoal'
-  | 'streaks'
-  | 'anomaly'
+/**
+ * The 7 viz toggles the Settings page surfaces (decision Q removed
+ * weight-based). The const list is the source of truth — main process uses it
+ * for default + validation, renderer iterates it for UI order. The union type
+ * is derived from it so adding a viz means changing exactly one place.
+ */
+export const VIZ_TOGGLE_KEYS = [
+  'heatmap',
+  'stackedArea',
+  'radar',
+  'ribbon',
+  'gapFromGoal',
+  'streaks',
+  'anomaly',
+] as const
+
+export type VizToggleKey = (typeof VIZ_TOGGLE_KEYS)[number]
 
 export type VizToggleState = Record<VizToggleKey, boolean>
 

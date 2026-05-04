@@ -10,9 +10,9 @@ import {
   AccordionContent,
 } from '@renderer/components/ui/accordion'
 import type { DimensionInput } from '@shared/ipc'
+import { DIMENSION_COUNT_MAX } from '@shared/ipc'
 
 const PRESETS = ['Work', 'Health', 'Fitness', 'Sleep', 'Social', 'Learning'] as const
-const MAX_DIMS = 8
 
 interface Props {
   onComplete: () => void
@@ -50,14 +50,14 @@ export function Step2Dimensions({ onComplete }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   function addPreset(name: string) {
-    if (drafts.length >= MAX_DIMS) return
+    if (drafts.length >= DIMENSION_COUNT_MAX) return
     const next = emptyDraft(name)
     setDrafts((prev) => [...prev, next])
     setOpenId(next.id)
   }
 
   function addBlank() {
-    if (drafts.length >= MAX_DIMS) return
+    if (drafts.length >= DIMENSION_COUNT_MAX) return
     const next = emptyDraft('')
     setDrafts((prev) => [...prev, next])
     setOpenId(next.id)
@@ -104,7 +104,7 @@ export function Step2Dimensions({ onComplete }: Props) {
       <div>
         <h2 className="text-2xl font-bold mb-2">What do you want to track?</h2>
         <p className="text-muted-foreground">
-          Add up to {MAX_DIMS} dimensions. Each gets its own daily score against a rubric we
+          Add up to {DIMENSION_COUNT_MAX} dimensions. Each gets its own daily score against a rubric we
           generate from your goals. You can edit these later in Settings.
         </p>
       </div>
@@ -117,7 +117,7 @@ export function Step2Dimensions({ onComplete }: Props) {
               key={p}
               type="button"
               onClick={() => addPreset(p)}
-              disabled={drafts.length >= MAX_DIMS}
+              disabled={drafts.length >= DIMENSION_COUNT_MAX}
               className="rounded-full border border-warm-orange/40 bg-warm-cream px-3 py-1 text-sm text-warm-brown hover:bg-warm-peach/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               + {p}
@@ -224,7 +224,7 @@ export function Step2Dimensions({ onComplete }: Props) {
         })}
       </Accordion>
 
-      {drafts.length < MAX_DIMS && (
+      {drafts.length < DIMENSION_COUNT_MAX && (
         <button
           type="button"
           onClick={addBlank}
@@ -242,7 +242,7 @@ export function Step2Dimensions({ onComplete }: Props) {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {validCount} of max {MAX_DIMS} valid
+          {validCount} of max {DIMENSION_COUNT_MAX} valid
         </p>
         <Button
           onClick={handleContinue}

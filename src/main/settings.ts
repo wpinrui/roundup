@@ -7,25 +7,15 @@
  * union in `@shared/ipc` and this list together.
  */
 
-import { eq } from 'drizzle-orm'
 import type {
   UpdateApiKeyResult,
   VerifyResult,
   VizToggleKey,
   VizToggleState,
 } from '@shared/ipc'
+import { VIZ_TOGGLE_KEYS } from '@shared/ipc'
 import type { DrizzleClient } from './db/client'
 import { appSettings } from './db/schema'
-
-export const VIZ_TOGGLE_KEYS: readonly VizToggleKey[] = [
-  'heatmap',
-  'stackedArea',
-  'radar',
-  'ribbon',
-  'gapFromGoal',
-  'streaks',
-  'anomaly',
-] as const
 
 const TOGGLE_PREFIX = 'viz.'
 
@@ -84,16 +74,5 @@ function parseBool(raw: string, fallback: boolean): boolean {
     return fallback
   } catch {
     return fallback
-  }
-}
-
-/**
- * Per-table delete used by tests that want a clean slate without dropping the
- * whole table. Exported so the test file can call it directly; not used in
- * production code.
- */
-export async function _resetSettingsForTests(db: DrizzleClient): Promise<void> {
-  for (const key of VIZ_TOGGLE_KEYS) {
-    await db.delete(appSettings).where(eq(appSettings.key, TOGGLE_PREFIX + key))
   }
 }

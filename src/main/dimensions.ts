@@ -10,11 +10,9 @@
 
 import { eq, asc, inArray } from 'drizzle-orm'
 import type { DimensionRow, DimensionUpdate } from '@shared/ipc'
+import { DIMENSION_COUNT_MIN, DIMENSION_COUNT_MAX } from '@shared/ipc'
 import type { DrizzleClient } from './db/client'
 import { dimensions } from './db/schema'
-
-const MIN = 1
-const MAX = 8
 
 export async function listDimensions(db: DrizzleClient): Promise<DimensionRow[]> {
   const rows = await db.select().from(dimensions).orderBy(asc(dimensions.id))
@@ -34,11 +32,11 @@ export async function updateDimensions(
   db: DrizzleClient,
   inputs: DimensionUpdate[]
 ): Promise<DimensionRow[]> {
-  if (inputs.length < MIN) {
+  if (inputs.length < DIMENSION_COUNT_MIN) {
     throw new Error('At least one dimension is required.')
   }
-  if (inputs.length > MAX) {
-    throw new Error(`Maximum ${MAX} dimensions allowed.`)
+  if (inputs.length > DIMENSION_COUNT_MAX) {
+    throw new Error(`Maximum ${DIMENSION_COUNT_MAX} dimensions allowed.`)
   }
   for (const i of inputs) {
     if (!i.name || !i.name.trim()) {

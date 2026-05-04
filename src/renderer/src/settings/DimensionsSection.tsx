@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { DimensionRow, DimensionUpdate } from '@shared/ipc'
+import { DIMENSION_COUNT_MAX } from '@shared/ipc'
 import { Button } from '@renderer/components/ui/button'
 import { Input } from '@renderer/components/ui/input'
 import { Textarea } from '@renderer/components/ui/textarea'
@@ -18,8 +19,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@renderer/components/ui/dialog'
-
-const MAX_DIMS = 8
 
 interface Draft extends DimensionUpdate {
   /** Stable client-side key; useful for dragging/keying when id is null. */
@@ -82,7 +81,7 @@ export function DimensionsSection() {
 
   function add() {
     setDrafts((prev) => {
-      if (!prev || prev.length >= MAX_DIMS) return prev
+      if (!prev || prev.length >= DIMENSION_COUNT_MAX) return prev
       const next = emptyDraft()
       setOpenKey(next.clientKey)
       return [...prev, next]
@@ -227,7 +226,7 @@ export function DimensionsSection() {
         })}
       </Accordion>
 
-      {drafts.length < MAX_DIMS && (
+      {drafts.length < DIMENSION_COUNT_MAX && (
         <button
           type="button"
           onClick={add}
@@ -251,7 +250,7 @@ export function DimensionsSection() {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {drafts.length} dimension{drafts.length === 1 ? '' : 's'} (max {MAX_DIMS})
+          {drafts.length} dimension{drafts.length === 1 ? '' : 's'} (max {DIMENSION_COUNT_MAX})
         </p>
         <Button
           onClick={save}

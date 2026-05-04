@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { VizToggleKey, VizToggleState } from '@shared/ipc'
+import { VIZ_TOGGLE_KEYS } from '@shared/ipc'
 import { Switch } from '@renderer/components/ui/switch'
 
 const TOGGLE_LABELS: Record<VizToggleKey, { label: string; description: string }> = {
@@ -33,16 +34,6 @@ const TOGGLE_LABELS: Record<VizToggleKey, { label: string; description: string }
   },
 }
 
-const ORDER: readonly VizToggleKey[] = [
-  'heatmap',
-  'stackedArea',
-  'radar',
-  'ribbon',
-  'gapFromGoal',
-  'streaks',
-  'anomaly',
-] as const
-
 export function VizTogglesSection() {
   const [state, setState] = useState<VizToggleState | null>(null)
 
@@ -72,7 +63,7 @@ export function VizTogglesSection() {
         </p>
       </header>
       <ul className="flex flex-col gap-3">
-        {ORDER.map((key) => {
+        {VIZ_TOGGLE_KEYS.map((key) => {
           const meta = TOGGLE_LABELS[key]
           const checked = state?.[key] ?? true
           return (
