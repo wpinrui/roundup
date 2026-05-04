@@ -110,6 +110,16 @@ export function DimensionsSection() {
       setTimeout(() => setSuccess(false), 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save dimensions.')
+      // Realign drafts with the server's actual state — without this the user
+      // sees an error message alongside a draft list reflecting deletions /
+      // edits that never persisted (e.g. FK refusal on a delete).
+      try {
+        const fresh = await window.api.listDimensions()
+        setDrafts(fresh.map(rowToDraft))
+      } catch {
+        // If even the re-fetch fails, leave drafts as-is; the error message
+        // already tells the user something is wrong.
+      }
     } finally {
       setSaving(false)
     }
