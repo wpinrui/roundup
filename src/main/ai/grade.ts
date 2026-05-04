@@ -252,9 +252,9 @@ function extractText(message: Anthropic.Message): string {
 }
 
 /**
- * Deterministic mock for E2E. Score = clamp((weight + 2), 0, 10). Hours = 1.
- * Two suggestions per dimension. Narrative references the input length so
- * tests can assert the function actually saw the text.
+ * Deterministic mock for E2E. Score = clamp(weight - 2, 0, 10). Hours = 1.
+ * Two suggestions per dimension. The narrative is a fixed string with the
+ * word "mock" so tests can assert the mock path was taken.
  */
 function mockResult(dimensions: DimensionRow[]): GradeResult {
   const scores: GradeScore[] = dimensions.map((d) => ({
